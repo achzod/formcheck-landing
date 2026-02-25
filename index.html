@@ -4,554 +4,587 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FORMCHECK by AchZod — Analyse Biomécanique par IA</title>
-<meta name="description" content="Envoie une vidéo sur WhatsApp, reçois une analyse biomécanique complète avec score /100, corrections et exercices correctifs. Propulsé par GPT-4o Vision.">
+<meta name="description" content="Analyse ta technique d'exercice comme un pro. Envoie une vidéo sur WhatsApp, reçois un diagnostic biomécanique complet par IA. Powered by GPT-4o Vision.">
+<meta property="og:title" content="FORMCHECK by AchZod — Analyse Biomécanique par IA">
+<meta property="og:description" content="Envoie une vidéo, reçois un diagnostic technique complet. Score /100, corrections personnalisées, exercices correctifs.">
+<meta property="og:image" content="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/6011eb74e075cde25f0bf2ae_achzodcoaching-opengraph.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/6001bc222e646c579c5f0ad4_favicon-achzodcoaching.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ===== RESET & BASE ===== */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
---base:#0a0a0a;--primary:#0a0b0d;--elevated:#13151a;--surface:#1a1d24;
---cyan:#06b6d4;--emerald:#10b981;--blue:#3b82f6;--amber:#f59e0b;--rose:#f43f5e;
---text:#e2e8f0;--text-dim:#94a3b8;--text-muted:#64748b;
---glass:rgba(26,29,36,0.6);--glass-border:rgba(255,255,255,0.08);
---glass-border-hover:rgba(255,255,255,0.15);
---font-body:'Inter',sans-serif;--font-head:'Space Grotesk',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --bg:#0a0a0a;--bg2:#0a0b0d;--bg3:#13151a;
+  --surface:#1a1d24;--surface2:#22262f;
+  --cyan:#06b6d4;--emerald:#10b981;--purple:#7c3aed;
+  --text:#e2e8f0;--dim:#94a3b8;--muted:#64748b;
+  --glass:rgba(26,29,36,0.6);--glass-border:rgba(255,255,255,0.06);
+  --font-body:'Work Sans','Inter',sans-serif;
+  --font-display:'Space Grotesk','Work Sans',sans-serif;
 }
-html{scroll-behavior:smooth;background:var(--base);color:var(--text);font-family:var(--font-body);-webkit-font-smoothing:antialiased}
-body{overflow-x:hidden;background:var(--base)}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-img{max-width:100%}
-
-/* Grain overlay */
-.grain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:.035;
-background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Grid pattern */
-.grid-bg{position:absolute;inset:0;background-image:
-linear-gradient(rgba(6,182,212,0.03) 1px,transparent 1px),
-linear-gradient(90deg,rgba(6,182,212,0.03) 1px,transparent 1px);
-background-size:60px 60px;pointer-events:none}
-
-/* Blur orbs */
-.orb{position:absolute;border-radius:50%;pointer-events:none;will-change:transform}
-.orb-cyan{width:500px;height:500px;background:rgba(6,182,212,0.15);filter:blur(120px)}
-.orb-emerald{width:400px;height:400px;background:rgba(16,185,129,0.12);filter:blur(100px)}
-.orb-blue{width:350px;height:350px;background:rgba(59,130,246,0.1);filter:blur(100px)}
-
-/* Utility */
+img{max-width:100%;display:block}
 .container{max-width:1200px;margin:0 auto;padding:0 24px}
-.section{position:relative;padding:120px 0}
-.section-label{font-family:var(--font-mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.section-label::before{content:'';width:24px;height:1px;background:var(--cyan)}
-.section-title{font-family:var(--font-head);font-size:clamp(32px,5vw,52px);font-weight:700;line-height:1.1;margin-bottom:20px}
-.gradient-text{background:linear-gradient(135deg,var(--cyan),var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.text-dim{color:var(--text-dim)}
-.text-muted{color:var(--text-muted)}
-
-/* Glass card */
-.glass{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:16px;transition:border-color .3s,box-shadow .3s}
-.glass:hover{border-color:var(--glass-border-hover)}
-
-/* CTA Button */
-.btn-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;background:linear-gradient(135deg,var(--cyan),var(--emerald));color:#000;font-family:var(--font-head);font-weight:600;font-size:16px;border-radius:12px;border:none;cursor:pointer;transition:all .3s;box-shadow:0 0 30px rgba(6,182,212,0.3)}
-.btn-cta:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(6,182,212,0.5)}
-.btn-cta svg{width:20px;height:20px}
-.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:transparent;color:var(--text);font-family:var(--font-head);font-weight:500;font-size:15px;border-radius:12px;border:1px solid var(--glass-border);cursor:pointer;transition:all .3s}
-.btn-secondary:hover{border-color:var(--cyan);color:var(--cyan)}
 
 /* ===== NAVBAR ===== */
-.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:16px 0;transition:all .3s}
-.navbar.scrolled{background:rgba(10,10,10,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border)}
-.navbar .container{display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-family:var(--font-head);font-size:22px;font-weight:700;letter-spacing:1px}
-.nav-logo span{color:var(--cyan)}
-.nav-links{display:flex;gap:32px;align-items:center}
-.nav-links a{font-size:14px;color:var(--text-dim);transition:color .2s;font-weight:500}
-.nav-links a:hover{color:var(--text)}
-.nav-cta{padding:10px 20px!important;background:linear-gradient(135deg,var(--cyan),var(--emerald));color:#000!important;border-radius:8px;font-weight:600!important;font-size:13px!important}
-.nav-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px}
-.nav-burger span{width:24px;height:2px;background:var(--text);transition:.3s}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:16px 0;transition:all .4s}
+.navbar.scrolled{background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:12px}
+.nav-brand img{height:30px;width:auto}
+.nav-brand-text{display:flex;flex-direction:column;line-height:1.1}
+.nav-brand-text .brand-name{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:2px;color:#fff}
+.nav-brand-text .brand-name span{color:var(--cyan)}
+.nav-brand-text .brand-sub{font-size:10px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:13px;font-weight:500;color:var(--dim);letter-spacing:.5px;transition:color .3s}
+.nav-links a:hover{color:#fff}
+.nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--cyan);color:#000;font-weight:600;font-size:13px;padding:10px 20px;border-radius:50px;transition:all .3s;letter-spacing:.3px}
+.nav-cta:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(6,182,212,0.4)}
+.nav-cta svg{width:16px;height:16px}
+
+/* ===== MOBILE NAV ===== */
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px}
+.nav-toggle span{width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
 @media(max-width:768px){
-.nav-links{position:fixed;top:0;right:-100%;width:280px;height:100vh;background:var(--elevated);flex-direction:column;padding:80px 32px;gap:24px;transition:.3s;border-left:1px solid var(--glass-border)}
-.nav-links.open{right:0}
-.nav-burger{display:flex}
+  .nav-links{position:fixed;top:0;right:-100%;width:280px;height:100vh;background:var(--bg3);flex-direction:column;padding:80px 32px 32px;gap:24px;transition:right .4s;z-index:999}
+  .nav-links.open{right:0}
+  .nav-toggle{display:flex}
 }
 
 /* ===== HERO ===== */
-.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:100px}
-.hero .orb-cyan{top:-10%;right:-10%}
-.hero .orb-emerald{bottom:-5%;left:-10%}
-.hero .orb-blue{top:40%;left:50%}
-.hero-content{position:relative;z-index:2;max-width:800px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:100px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);font-family:var(--font-mono);font-size:12px;color:var(--cyan);margin-bottom:24px}
-.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);animation:pulse-dot 2s infinite}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
-.hero h1{font-family:var(--font-head);font-size:clamp(42px,7vw,76px);font-weight:700;line-height:1.05;margin-bottom:24px;letter-spacing:-1px}
-.hero p{font-size:clamp(16px,2vw,20px);color:var(--text-dim);line-height:1.6;margin-bottom:40px;max-width:600px}
-.hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:64px}
-.hero-stats{display:flex;gap:48px;flex-wrap:wrap}
-.hero-stat{text-align:left}
-.hero-stat .num{font-family:var(--font-head);font-size:clamp(36px,4vw,48px);font-weight:700;line-height:1}
-.hero-stat .label{font-size:13px;color:var(--text-muted);margin-top:4px;font-family:var(--font-mono);letter-spacing:1px}
-
-/* ===== MARQUEE ===== */
-.marquee-section{border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);padding:20px 0;overflow:hidden;background:var(--primary)}
-.marquee-track{display:flex;gap:48px;animation:marquee 30s linear infinite;width:max-content}
-.marquee-track:hover{animation-play-state:paused}
-.marquee-item{font-family:var(--font-mono);font-size:14px;color:var(--text-muted);white-space:nowrap;display:flex;align-items:center;gap:8px}
-.marquee-item::before{content:'◆';color:var(--cyan);font-size:8px}
-@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-
-/* ===== STEPS ===== */
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.step-card{padding:40px 32px;position:relative;overflow:hidden}
-.step-card .step-num{font-family:var(--font-head);font-size:72px;font-weight:700;color:rgba(6,182,212,0.08);position:absolute;top:-10px;right:16px;line-height:1}
-.step-card .step-icon{width:48px;height:48px;border-radius:12px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--cyan);font-size:20px}
-.step-card h3{font-family:var(--font-head);font-size:20px;font-weight:600;margin-bottom:12px}
-.step-card p{color:var(--text-dim);font-size:15px;line-height:1.6}
-@media(max-width:768px){.steps-grid{grid-template-columns:1fr}}
-
-/* ===== BENTO GRID ===== */
-.bento-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(180px,auto);gap:20px}
-.bento-card{padding:32px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
-.bento-card.span-2{grid-column:span 2}
-.bento-card.tall{grid-row:span 2}
-.bento-card .card-label{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
-.bento-card h3{font-family:var(--font-head);font-size:22px;font-weight:600;margin-bottom:8px}
-.bento-card p{color:var(--text-dim);font-size:14px;line-height:1.5}
-.bento-card .big-num{font-family:var(--font-head);font-size:clamp(48px,6vw,64px);font-weight:700;line-height:1}
-.bento-card .mini-bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.05);margin-top:8px;overflow:hidden}
-.bento-card .mini-bar-fill{height:100%;border-radius:2px;transition:width 1.5s ease}
-.bento-card:hover{border-color:var(--glass-border-hover);box-shadow:0 0 30px rgba(6,182,212,0.05)}
-@media(max-width:768px){
-.bento-grid{grid-template-columns:1fr}
-.bento-card.span-2{grid-column:span 1}
-}
-
-/* ===== SCORE BREAKDOWN ===== */
-.score-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
-.score-item{padding:32px;display:flex;align-items:center;gap:24px}
-.score-ring{position:relative;width:80px;height:80px;flex-shrink:0}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:120px 0 80px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0}
+.hero-bg .orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.15;animation:orbFloat 20s ease-in-out infinite}
+.hero-bg .orb-1{width:600px;height:600px;background:var(--cyan);top:-10%;left:-10%;animation-delay:0s}
+.hero-bg .orb-2{width:500px;height:500px;background:var(--purple);bottom:-10%;right:-5%;animation-delay:-7s}
+.hero-bg .orb-3{width:400px;height:400px;background:var(--emerald);top:40%;left:50%;animation-delay:-14s}
+.hero-grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;z-index:1}
+.hero-content{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-left{display:flex;flex-direction:column;gap:28px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:50px;padding:8px 18px;font-size:12px;font-weight:600;letter-spacing:1px;color:var(--cyan);width:fit-content;text-transform:uppercase}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 2s ease-in-out infinite}
+.hero-title{font-family:var(--font-display);font-size:clamp(36px,5.5vw,64px);font-weight:800;line-height:1.05;letter-spacing:-1.5px}
+.hero-title .gradient{background:linear-gradient(135deg,var(--cyan),var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:18px;color:var(--dim);line-height:1.7;max-width:500px}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--cyan),#0891b2);color:#000;font-weight:700;font-size:16px;padding:18px 36px;border-radius:60px;transition:all .3s;letter-spacing:.3px;border:none;cursor:pointer}
+.btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 20px 60px rgba(6,182,212,0.35)}
+.btn-primary svg{width:22px;height:22px}
+.btn-secondary{display:inline-flex;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);font-weight:600;font-size:15px;padding:16px 32px;border-radius:60px;transition:all .3s;cursor:pointer;backdrop-filter:blur(10px)}
+.btn-secondary:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}
+.hero-trust{display:flex;gap:28px;flex-wrap:wrap}
+.trust-item{display:flex;flex-direction:column;gap:2px}
+.trust-item .trust-val{font-family:var(--font-display);font-size:24px;font-weight:800;color:#fff}
+.trust-item .trust-label{font-size:11px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase}
+.hero-right{position:relative;display:flex;justify-content:center;align-items:center}
+.hero-photo-wrapper{position:relative;width:380px;height:480px;border-radius:24px;overflow:hidden}
+.hero-photo-wrapper img{width:100%;height:100%;object-fit:cover;object-position:top}
+.hero-photo-wrapper::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,var(--bg) 100%);pointer-events:none}
+.hero-photo-glow{position:absolute;width:420px;height:520px;border-radius:28px;background:linear-gradient(135deg,rgba(6,182,212,0.15),rgba(124,58,237,0.15));top:50%;left:50%;transform:translate(-50%,-50%);z-index:-1;filter:blur(2px)}
+.hero-score-float{position:absolute;bottom:40px;left:-40px;background:rgba(26,29,36,0.9);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:16px;padding:20px;z-index:3;animation:floatY 4s ease-in-out infinite}
+.score-ring{width:80px;height:80px;position:relative;margin:0 auto 8px}
 .score-ring svg{width:80px;height:80px;transform:rotate(-90deg)}
-.score-ring circle{fill:none;stroke-width:4;stroke-linecap:round}
-.score-ring .track{stroke:rgba(255,255,255,0.05)}
-.score-ring .fill{transition:stroke-dashoffset 1.5s ease}
-.score-ring .ring-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:20px;font-weight:700}
-.score-info h4{font-family:var(--font-head);font-size:18px;font-weight:600;margin-bottom:4px}
-.score-info p{color:var(--text-dim);font-size:13px;line-height:1.5}
-@media(max-width:768px){.score-grid{grid-template-columns:1fr}}
+.score-ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+.score-ring .bg{stroke:rgba(255,255,255,0.06)}
+.score-ring .fill{stroke:url(#scoreGrad);stroke-dasharray:226;stroke-dashoffset:30;transition:stroke-dashoffset 2s ease}
+.score-ring .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:22px;color:#fff}
+.score-label{text-align:center;font-size:11px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase}
 
-/* ===== EXERCISES ===== */
-.exercises-wrap{display:flex;flex-wrap:wrap;gap:10px}
-.exercise-tag{padding:10px 18px;border-radius:100px;font-size:13px;font-weight:500;background:var(--glass);border:1px solid var(--glass-border);transition:all .3s;cursor:default}
-.exercise-tag:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 15px rgba(6,182,212,0.15)}
+@keyframes orbFloat{0%,100%{transform:translate(0,0)}25%{transform:translate(30px,-40px)}50%{transform:translate(-20px,30px)}75%{transform:translate(40px,20px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 
-/* ===== MORPHO ===== */
-.morpho-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}
-.morpho-steps{display:flex;flex-direction:column;gap:20px}
-.morpho-step{display:flex;gap:16px;padding:20px;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass);transition:.3s}
-.morpho-step:hover{border-color:var(--glass-border-hover)}
-.morpho-step .ms-num{font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--cyan);flex-shrink:0;width:36px}
-.morpho-step h4{font-family:var(--font-head);font-size:16px;font-weight:600;margin-bottom:4px}
-.morpho-step p{font-size:13px;color:var(--text-dim);line-height:1.5}
-.morpho-visual{aspect-ratio:1;border-radius:20px;background:linear-gradient(135deg,var(--elevated),var(--surface));border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.morpho-visual .silhouette{width:120px;height:200px;border:2px solid rgba(6,182,212,0.3);border-radius:60px 60px 30px 30px;position:relative}
-.morpho-visual .silhouette::before{content:'';position:absolute;top:20px;left:50%;transform:translateX(-50%);width:40px;height:40px;border:2px solid rgba(6,182,212,0.3);border-radius:50%}
-.morpho-visual .measure-line{position:absolute;height:1px;background:rgba(6,182,212,0.4);display:flex;align-items:center}
-.morpho-visual .measure-line::after{content:attr(data-label);font-family:var(--font-mono);font-size:9px;color:var(--cyan);white-space:nowrap;position:absolute;right:-60px}
-@media(max-width:768px){.morpho-grid{grid-template-columns:1fr}}
+/* ===== MEDIA MARQUEE ===== */
+.marquee-section{padding:40px 0;background:var(--bg2);border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);overflow:hidden}
+.marquee-label{text-align:center;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+.marquee-track{display:flex;animation:marqueeScroll 40s linear infinite;width:max-content}
+.marquee-track:hover{animation-play-state:paused}
+.marquee-logos{display:flex;align-items:center;gap:60px;padding:0 30px}
+.marquee-logos img{height:22px;opacity:.4;filter:brightness(0) invert(1);transition:opacity .3s}
+.marquee-logos img:hover{opacity:.8}
+@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-/* ===== PRICING ===== */
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:24px}
-.pricing-card{padding:40px 32px;position:relative;display:flex;flex-direction:column}
-.pricing-card.featured{border-color:rgba(6,182,212,0.3);box-shadow:0 0 40px rgba(6,182,212,0.1)}
-.pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);padding:6px 16px;background:linear-gradient(135deg,var(--cyan),var(--emerald));color:#000;font-family:var(--font-mono);font-size:11px;font-weight:600;border-radius:100px;letter-spacing:1px}
-.pricing-card h3{font-family:var(--font-head);font-size:22px;font-weight:600;margin-bottom:8px}
-.pricing-price{font-family:var(--font-head);font-size:48px;font-weight:700;margin:16px 0 4px}
-.pricing-price span{font-size:18px;color:var(--text-muted);font-weight:400}
-.pricing-period{font-size:13px;color:var(--text-muted);margin-bottom:24px}
-.pricing-features{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:32px;flex-grow:1}
-.pricing-features li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-dim)}
-.pricing-features li::before{content:'✓';color:var(--emerald);font-weight:700;font-size:14px}
-.pricing-card .btn-cta{width:100%;justify-content:center;padding:14px;font-size:14px}
-.pricing-card .btn-secondary{width:100%;justify-content:center}
-.free-banner{text-align:center;padding:20px;border-radius:12px;background:linear-gradient(135deg,rgba(6,182,212,0.1),rgba(16,185,129,0.1));border:1px solid rgba(6,182,212,0.2);margin-bottom:40px}
-.free-banner p{font-family:var(--font-head);font-size:20px;font-weight:600}
-.free-banner span{color:var(--cyan)}
-@media(max-width:768px){.pricing-grid{grid-template-columns:1fr}}
+/* ===== SECTIONS COMMON ===== */
+.section{padding:120px 0;position:relative}
+.section-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+.section-label::before{content:'';width:20px;height:1px;background:var(--cyan)}
+.section-title{font-family:var(--font-display);font-size:clamp(28px,4vw,48px);font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:20px}
+.section-title .gr{background:linear-gradient(135deg,var(--cyan),var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-title .pr{background:linear-gradient(135deg,var(--purple),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-desc{font-size:17px;color:var(--dim);max-width:600px;line-height:1.7}
+
+/* ===== HOW IT WORKS ===== */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px}
+.step-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:40px 32px;position:relative;overflow:hidden;transition:all .4s}
+.step-card:hover{border-color:rgba(6,182,212,0.2);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;transition:opacity .4s}
+.step-card:hover::before{opacity:1}
+.step-num{font-family:var(--font-display);font-size:56px;font-weight:900;background:linear-gradient(135deg,rgba(6,182,212,0.15),rgba(16,185,129,0.08));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:20px}
+.step-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px}
+.step-card h3{font-family:var(--font-display);font-size:20px;font-weight:700;margin-bottom:10px;color:#fff}
+.step-card p{color:var(--dim);font-size:14px;line-height:1.6}
+
+/* ===== ANALYSIS BENTO ===== */
+.bento-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:auto auto;gap:20px;margin-top:60px}
+.bento-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:32px;position:relative;overflow:hidden;transition:all .4s}
+.bento-card:hover{border-color:rgba(6,182,212,0.15);box-shadow:0 0 40px rgba(6,182,212,0.05)}
+.bento-card.span2{grid-column:span 2}
+.bento-card.span3{grid-column:span 3}
+.bento-card h3{font-family:var(--font-display);font-weight:700;font-size:18px;color:#fff;margin-bottom:8px}
+.bento-card p{color:var(--dim);font-size:13px;line-height:1.6}
+.bento-card .bento-icon{font-size:32px;margin-bottom:16px}
+.score-demo{display:flex;gap:20px;margin-top:20px;flex-wrap:wrap}
+.dim-score{flex:1;min-width:100px;text-align:center}
+.dim-ring{width:70px;height:70px;margin:0 auto 8px;position:relative}
+.dim-ring svg{width:70px;height:70px;transform:rotate(-90deg)}
+.dim-ring circle{fill:none;stroke-width:5;stroke-linecap:round}
+.dim-ring .bg{stroke:rgba(255,255,255,0.05)}
+.dim-ring .fill-cyan{stroke:var(--cyan)}
+.dim-ring .fill-emerald{stroke:var(--emerald)}
+.dim-ring .fill-purple{stroke:var(--purple)}
+.dim-ring .fill-amber{stroke:#f59e0b}
+.dim-ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:16px;color:#fff}
+.dim-label{font-size:11px;color:var(--dim);letter-spacing:.3px}
+.exercise-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.exercise-pills span{background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:50px;padding:6px 14px;font-size:11px;color:var(--dim);letter-spacing:.3px}
+
+/* ===== TESTIMONIALS ===== */
+.testimonials{background:linear-gradient(180deg,var(--bg) 0%,rgba(124,58,237,0.04) 50%,var(--bg) 100%);padding:120px 0}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px}
+.testi-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:36px;position:relative;transition:all .4s}
+.testi-card:hover{border-color:rgba(124,58,237,0.2);transform:translateY(-4px)}
+.testi-card::before{content:'"';position:absolute;top:20px;right:28px;font-family:var(--font-display);font-size:80px;line-height:1;color:rgba(124,58,237,0.1);font-weight:800}
+.testi-stars{color:#f59e0b;font-size:14px;letter-spacing:2px;margin-bottom:16px}
+.testi-text{font-size:15px;color:var(--text);line-height:1.7;font-style:italic;margin-bottom:20px}
+.testi-author{font-size:13px;font-weight:600;color:var(--purple)}
 
 /* ===== ABOUT ===== */
-.about-card{display:grid;grid-template-columns:auto 1fr;gap:40px;padding:48px;align-items:center}
-.about-avatar{width:120px;height:120px;border-radius:20px;background:linear-gradient(135deg,var(--cyan),var(--emerald));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:36px;font-weight:700;color:#000}
-.about-info h3{font-family:var(--font-head);font-size:28px;font-weight:700;margin-bottom:8px}
-.about-info p{color:var(--text-dim);font-size:15px;line-height:1.6;margin-bottom:16px}
-.about-stats{display:flex;gap:32px;flex-wrap:wrap}
-.about-stat{text-align:left}
-.about-stat .val{font-family:var(--font-head);font-size:24px;font-weight:700}
-.about-stat .lab{font-size:12px;color:var(--text-muted);font-family:var(--font-mono);letter-spacing:1px}
-@media(max-width:768px){.about-card{grid-template-columns:1fr;text-align:center}.about-stats{justify-content:center}}
-.cert-marquee{margin-top:40px;overflow:hidden;padding:16px 0;border-top:1px solid var(--glass-border)}
-.cert-track{display:flex;gap:32px;animation:marquee 25s linear infinite;width:max-content}
-.cert-item{padding:8px 20px;border-radius:8px;background:var(--glass);border:1px solid var(--glass-border);font-family:var(--font-mono);font-size:12px;color:var(--text-muted);white-space:nowrap}
+.about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center;margin-top:60px}
+.about-photo{position:relative;border-radius:20px;overflow:hidden;height:500px}
+.about-photo img{width:100%;height:100%;object-fit:cover;object-position:top}
+.about-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,var(--bg));pointer-events:none}
+.about-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;opacity:.04;pointer-events:none;z-index:1}
+.about-info h3{font-family:var(--font-display);font-size:32px;font-weight:800;margin-bottom:12px;color:#fff}
+.about-info .about-role{color:var(--cyan);font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+.about-info p{color:var(--dim);font-size:15px;line-height:1.8;margin-bottom:24px}
+.cred-list{display:flex;flex-direction:column;gap:12px}
+.cred-item{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text)}
+.cred-item .cred-icon{width:36px;height:36px;border-radius:10px;background:rgba(6,182,212,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 
-/* ===== SOCIAL PROOF ===== */
-.proof-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-.proof-card{padding:40px 24px;text-align:center}
-.proof-card .num{font-family:var(--font-head);font-size:clamp(36px,5vw,52px);font-weight:700;margin-bottom:4px}
-.proof-card .lab{font-size:13px;color:var(--text-muted);font-family:var(--font-mono);letter-spacing:1px;text-transform:uppercase}
-@media(max-width:768px){.proof-grid{grid-template-columns:repeat(2,1fr)}}
+/* ===== PRICING ===== */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px}
+.price-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:24px;padding:40px 32px;position:relative;transition:all .4s;overflow:hidden}
+.price-card:hover{transform:translateY(-4px)}
+.price-card.popular{border-color:rgba(6,182,212,0.3);box-shadow:0 0 60px rgba(6,182,212,0.08)}
+.price-card.popular::before{content:'POPULAIRE';position:absolute;top:20px;right:-30px;background:linear-gradient(135deg,var(--cyan),var(--emerald));color:#000;font-size:10px;font-weight:800;letter-spacing:2px;padding:6px 40px;transform:rotate(45deg)}
+.price-card .plan-name{font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+.price-card .price{font-family:var(--font-display);font-size:48px;font-weight:900;color:#fff;line-height:1;margin-bottom:4px}
+.price-card .price span{font-size:18px;color:var(--dim);font-weight:500}
+.price-card .price-sub{font-size:13px;color:var(--dim);margin-bottom:28px}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.price-features li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+.price-features li::before{content:'✓';color:var(--emerald);font-weight:700;font-size:14px}
+.price-btn{display:block;text-align:center;padding:16px;border-radius:14px;font-weight:700;font-size:14px;letter-spacing:.3px;transition:all .3s;border:1px solid var(--glass-border);color:var(--text);background:rgba(255,255,255,0.03)}
+.price-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15)}
+.price-card.popular .price-btn{background:linear-gradient(135deg,var(--cyan),#0891b2);color:#000;border:none}
+.price-card.popular .price-btn:hover{box-shadow:0 10px 40px rgba(6,182,212,0.3);transform:scale(1.02)}
 
 /* ===== FAQ ===== */
-.faq-list{display:flex;flex-direction:column;gap:12px;max-width:800px;margin:0 auto}
-.faq-item{border-radius:12px;overflow:hidden}
-.faq-q{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;cursor:pointer;font-family:var(--font-head);font-size:16px;font-weight:500;transition:.2s}
+.faq-list{max-width:760px;margin:60px auto 0;display:flex;flex-direction:column;gap:12px}
+.faq-item{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;overflow:hidden;transition:border-color .3s}
+.faq-item:hover{border-color:rgba(255,255,255,0.1)}
+.faq-q{padding:22px 28px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px;color:#fff;user-select:none;transition:color .3s}
 .faq-q:hover{color:var(--cyan)}
-.faq-q .icon{font-size:20px;transition:transform .3s;color:var(--text-muted)}
-.faq-item.open .faq-q .icon{transform:rotate(45deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 24px}
-.faq-a-inner{padding:0 0 20px;color:var(--text-dim);font-size:14px;line-height:1.7}
+.faq-q .icon{font-size:20px;color:var(--dim);transition:transform .3s;font-weight:300}
+.faq-item.open .faq-q .icon{transform:rotate(45deg);color:var(--cyan)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-a-inner{padding:0 28px 22px;font-size:14px;color:var(--dim);line-height:1.7}
+
+/* ===== NEWSLETTER ===== */
+.newsletter{padding:100px 0;position:relative;overflow:hidden}
+.newsletter::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(6,182,212,0.04));pointer-events:none}
+.newsletter-inner{position:relative;z-index:1;text-align:center;max-width:560px;margin:0 auto}
+.newsletter-inner h2{font-family:var(--font-display);font-size:36px;font-weight:800;margin-bottom:12px;color:#fff}
+.newsletter-inner p{color:var(--dim);font-size:15px;margin-bottom:32px}
+.newsletter-form{display:flex;gap:12px;max-width:460px;margin:0 auto}
+.newsletter-form input{flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:16px 20px;font-size:14px;color:var(--text);font-family:var(--font-body);outline:none;transition:border-color .3s}
+.newsletter-form input:focus{border-color:rgba(124,58,237,0.4)}
+.newsletter-form input::placeholder{color:var(--muted)}
+.newsletter-form button{background:linear-gradient(135deg,var(--purple),#6d28d9);color:#fff;border:none;border-radius:14px;padding:16px 28px;font-weight:700;font-size:14px;cursor:pointer;transition:all .3s;white-space:nowrap;font-family:var(--font-body)}
+.newsletter-form button:hover{transform:scale(1.05);box-shadow:0 10px 40px rgba(124,58,237,0.3)}
 
 /* ===== FINAL CTA ===== */
-.final-cta{text-align:center;padding:120px 24px;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(6,182,212,0.05),rgba(16,185,129,0.05))}
-.final-cta h2{font-family:var(--font-head);font-size:clamp(32px,5vw,56px);font-weight:700;margin-bottom:24px;line-height:1.1}
-.final-cta p{color:var(--text-dim);font-size:18px;margin-bottom:40px;max-width:500px;margin-left:auto;margin-right:auto}
+.final-cta{padding:120px 0;position:relative;text-align:center;overflow:hidden}
+.final-cta .orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.1}
+.final-cta .orb-1{width:500px;height:500px;background:var(--cyan);top:0;left:20%}
+.final-cta .orb-2{width:400px;height:400px;background:var(--purple);bottom:0;right:20%}
+.final-cta h2{font-family:var(--font-display);font-size:clamp(32px,4vw,52px);font-weight:800;line-height:1.1;margin-bottom:16px;color:#fff;position:relative;z-index:1}
+.final-cta p{color:var(--dim);font-size:17px;margin-bottom:36px;position:relative;z-index:1}
 
 /* ===== FOOTER ===== */
-footer{border-top:1px solid var(--glass-border);padding:48px 0 32px;background:var(--primary)}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
-.footer-brand p{color:var(--text-muted);font-size:13px;line-height:1.6;margin-top:12px;max-width:300px}
-.footer-col h4{font-family:var(--font-head);font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text)}
-.footer-col a{display:block;font-size:13px;color:var(--text-muted);margin-bottom:10px;transition:color .2s}
+footer{border-top:1px solid var(--glass-border);padding:60px 0 30px;background:var(--bg2)}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand{display:flex;flex-direction:column;gap:16px}
+.footer-brand img{height:28px;width:auto;opacity:.6}
+.footer-brand p{color:var(--dim);font-size:13px;line-height:1.6;max-width:280px}
+.footer-col h4{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:16px}
+.footer-col a{display:block;font-size:13px;color:var(--dim);margin-bottom:10px;transition:color .3s}
 .footer-col a:hover{color:var(--cyan)}
-.footer-bottom{border-top:1px solid var(--glass-border);padding-top:24px;display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)}
-@media(max-width:768px){.footer-grid{grid-template-columns:1fr}.footer-bottom{flex-direction:column;gap:8px}}
+.footer-bottom{border-top:1px solid var(--glass-border);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-bottom p{font-size:12px;color:var(--muted)}
+.footer-socials{display:flex;gap:16px}
+.footer-socials a{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--dim);transition:all .3s}
+.footer-socials a:hover{color:#fff;border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.08)}
 
-/* ===== FLOATING WA ===== */
-.wa-float{position:fixed;bottom:24px;right:24px;z-index:999;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--emerald));display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(6,182,212,0.4);animation:wa-pulse 2s infinite;cursor:pointer;transition:transform .2s}
-.wa-float:hover{transform:scale(1.1)}
-.wa-float svg{width:28px;height:28px;fill:#000}
-@keyframes wa-pulse{0%,100%{box-shadow:0 0 20px rgba(6,182,212,0.4)}50%{box-shadow:0 0 40px rgba(6,182,212,0.6)}}
+/* ===== REVEAL ANIMATIONS ===== */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}.reveal-d4{transition-delay:.4s}.reveal-d5{transition-delay:.5s}
 
-/* ===== ANIMATIONS ===== */
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s}
-.reveal.visible{opacity:1;transform:none}
-.reveal-delay-1{transition-delay:.1s}
-.reveal-delay-2{transition-delay:.2s}
-.reveal-delay-3{transition-delay:.3s}
+/* ===== RESPONSIVE ===== */
+@media(max-width:1024px){
+  .hero-content{grid-template-columns:1fr;text-align:center}
+  .hero-left{align-items:center}
+  .hero-badge{margin:0 auto}
+  .hero-desc{margin:0 auto}
+  .hero-trust{justify-content:center}
+  .hero-right{order:-1}
+  .hero-photo-wrapper{width:280px;height:350px}
+  .hero-score-float{display:none}
+  .bento-grid{grid-template-columns:repeat(2,1fr)}
+  .bento-card.span3{grid-column:span 2}
+  .about-grid{grid-template-columns:1fr}
+  .about-photo{height:400px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .steps-grid,.testi-grid,.pricing-grid{grid-template-columns:1fr}
+  .bento-grid{grid-template-columns:1fr}
+  .bento-card.span2,.bento-card.span3{grid-column:span 1}
+  .hero-actions{justify-content:center}
+  .newsletter-form{flex-direction:column}
+  .footer-grid{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .section{padding:80px 0}
+}
+
+/* ===== WhatsApp floating ===== */
+.wa-float{position:fixed;bottom:28px;right:28px;width:60px;height:60px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;z-index:999;box-shadow:0 4px 20px rgba(37,211,102,0.4);transition:all .3s;cursor:pointer}
+.wa-float:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(37,211,102,0.5)}
+.wa-float svg{width:28px;height:28px;fill:#fff}
+
+/* Counter animation */
+.counter{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
 
-<div class="grain"></div>
+<!-- SVG Defs -->
+<svg width="0" height="0" style="position:absolute">
+<defs>
+<linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#06b6d4"/>
+<stop offset="100%" stop-color="#10b981"/>
+</linearGradient>
+<linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#7c3aed"/>
+<stop offset="100%" stop-color="#a78bfa"/>
+</linearGradient>
+</defs>
+</svg>
 
 <!-- NAVBAR -->
-<nav class="navbar" id="navbar">
-<div class="container">
-<a href="#" class="nav-logo">FORM<span>CHECK</span></a>
+<nav class="navbar">
+<div class="container nav-inner">
+<a href="#" class="nav-brand">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/5fd26bf8a848a19741305727_monogram-white.svg" alt="AchZod">
+<div class="nav-brand-text">
+<div class="brand-name">FORM<span>CHECK</span></div>
+<div class="brand-sub">by AchZod</div>
+</div>
+</a>
 <div class="nav-links" id="navLinks">
 <a href="#fonctionnement">Fonctionnement</a>
 <a href="#analyse">Analyse</a>
 <a href="#tarifs">Tarifs</a>
 <a href="#faq">FAQ</a>
-<a href="https://wa.me/15557636881?text=Salut%20!" class="nav-cta" target="_blank">Essayer gratuit</a>
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="nav-cta">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.347 0-4.518-.809-6.235-2.163l-.436-.351-3.022 1.013 1.013-3.022-.351-.436A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+Essai gratuit
+</a>
 </div>
-<div class="nav-burger" id="navBurger" onclick="document.getElementById('navLinks').classList.toggle('open')">
+<div class="nav-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">
 <span></span><span></span><span></span>
 </div>
 </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero" id="hero">
-<div class="grid-bg"></div>
-<div class="orb orb-cyan"></div>
-<div class="orb orb-emerald"></div>
-<div class="orb orb-blue"></div>
-<div class="container">
-<div class="hero-content">
-<div class="hero-badge"><span class="dot"></span> Propulsé par GPT-4o Vision</div>
-<h1>Analyse ta technique<br>comme un <span class="gradient-text">pro</span></h1>
-<p>Envoie une vidéo sur WhatsApp. Reçois un score /100, une analyse rep par rep, des corrections détaillées et des exercices correctifs. En moins de 3 minutes.</p>
-<div class="hero-actions">
-<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="btn-cta">
-<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.347 0-4.518-.809-6.235-2.163l-.436-.351-3.022 1.013 1.013-3.022-.351-.436A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-Commencer sur WhatsApp
-</a>
-<a href="#fonctionnement" class="btn-secondary">Comment ça marche →</a>
+<section class="hero">
+<div class="hero-bg">
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 </div>
-<div class="hero-stats">
-<div class="hero-stat"><div class="num" data-count="82">0</div><div class="label">exercices</div></div>
-<div class="hero-stat"><div class="num">/100</div><div class="label">score détaillé</div></div>
-<div class="hero-stat"><div class="num" data-count="3" data-prefix="<" data-suffix="min">0</div><div class="label">par analyse</div></div>
+<div class="hero-grid-overlay"></div>
+<div class="container hero-content">
+<div class="hero-left">
+<div class="hero-badge reveal"><span class="dot"></span> Powered by GPT-4o Vision</div>
+<h1 class="hero-title reveal reveal-d1">ANALYSE TA<br>TECHNIQUE<br>COMME <span class="gradient">UN PRO</span></h1>
+<p class="hero-desc reveal reveal-d2">Envoie une vidéo de ton exercice sur WhatsApp. Reçois un diagnostic biomécanique complet en moins de 3 minutes — score, corrections, exercices correctifs.</p>
+<div class="hero-actions reveal reveal-d3">
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="btn-primary">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.347 0-4.518-.809-6.235-2.163l-.436-.351-3.022 1.013 1.013-3.022-.351-.436A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+1ère analyse offerte
+</a>
+<a href="#fonctionnement" class="btn-secondary">Découvrir →</a>
+</div>
+<div class="hero-trust reveal reveal-d4">
+<div class="trust-item"><span class="trust-val counter" data-target="11">0</span><span class="trust-label">Certifications</span></div>
+<div class="trust-item"><span class="trust-val counter" data-target="10">0</span><span class="trust-label">Ans d'expérience</span></div>
+<div class="trust-item"><span class="trust-val">+<span class="counter" data-target="98">0</span>%</span><span class="trust-label">De réussite</span></div>
+</div>
+</div>
+<div class="hero-right reveal">
+<div class="hero-photo-glow"></div>
+<div class="hero-photo-wrapper">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/6917b9839a5246daca173740_Achzod_Essan_Zram-53.jpg" alt="Achzod" loading="eager">
+</div>
+<div class="hero-score-float">
+<div class="score-ring">
+<svg viewBox="0 0 80 80"><circle class="bg" cx="40" cy="40" r="36"/><circle class="fill" cx="40" cy="40" r="36"/></svg>
+<div class="score-text">87</div>
+</div>
+<div class="score-label">Score technique</div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- MARQUEE -->
+<!-- MEDIA MARQUEE -->
 <div class="marquee-section">
-<div class="marquee-track" id="marqueeTrack"></div>
+<div class="marquee-label">Recommandé par les médias</div>
+<div class="marquee-track">
+<div class="marquee-logos">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa4342017915ee430adfa_Applenews.png" alt="Apple News">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3de4a8b37897c7b610b_streetinsider.png" alt="Street Insider">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3de11c344c3594683e4_marketwatch.png" alt="MarketWatch">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3def19420b2e6e620d3_reuters.png" alt="Reuters">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3dea2b251d9333bcea3_yahoofinance.png" alt="Yahoo Finance">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3deab0abcd175756a5a_fox40.png" alt="Fox40">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3ddbe79effb8668377b_benzinga.png" alt="Benzinga">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3ddc2ea13fe0fa53d3e_businessinsider.png" alt="Business Insider">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3ddaf6ab3656ca441dc_bloomberg.png" alt="Bloomberg">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa24f88397290dc2da17a_Googlenews.png" alt="Google News">
+</div>
+<div class="marquee-logos" aria-hidden="true">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa4342017915ee430adfa_Applenews.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3de4a8b37897c7b610b_streetinsider.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3de11c344c3594683e4_marketwatch.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3def19420b2e6e620d3_reuters.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3dea2b251d9333bcea3_yahoofinance.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3deab0abcd175756a5a_fox40.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3ddbe79effb8668377b_benzinga.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3ddc2ea13fe0fa53d3e_businessinsider.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa3ddaf6ab3656ca441dc_bloomberg.png" alt="">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/68ffa24f88397290dc2da17a_Googlenews.png" alt="">
+</div>
+</div>
 </div>
 
-<!-- COMMENT CA MARCHE -->
+<!-- HOW IT WORKS -->
 <section class="section" id="fonctionnement">
 <div class="container">
-<div class="section-label reveal">Fonctionnement</div>
-<h2 class="section-title reveal">3 étapes.<br><span class="gradient-text">C'est tout.</span></h2>
-<div class="steps-grid" style="margin-top:48px">
-<div class="step-card glass reveal reveal-delay-1">
+<div class="section-label reveal">Comment ça marche</div>
+<h2 class="section-title reveal reveal-d1">Simple comme <span class="gr">1, 2, 3</span></h2>
+<p class="section-desc reveal reveal-d2">Pas d'application à installer. Pas de compte à créer. Juste WhatsApp.</p>
+<div class="steps-grid">
+<div class="step-card reveal reveal-d1">
 <div class="step-num">01</div>
-<div class="step-icon">🎥</div>
-<h3>Filme ton exercice</h3>
-<p>Place ton téléphone de profil ou de face. Filme une ou plusieurs reps comme d'habitude.</p>
+<div class="step-icon" style="background:rgba(6,182,212,0.08)">📱</div>
+<h3>Envoie ta vidéo</h3>
+<p>Filme ton exercice et envoie la vidéo sur WhatsApp au numéro FORMCHECK. C'est tout ce qu'il te faut.</p>
 </div>
-<div class="step-card glass reveal reveal-delay-2">
+<div class="step-card reveal reveal-d2">
 <div class="step-num">02</div>
-<div class="step-icon">📱</div>
-<h3>Envoie sur WhatsApp</h3>
-<p>Envoie ta vidéo au bot FORMCHECK. Pas d'app à installer, pas de compte à créer.</p>
+<div class="step-icon" style="background:rgba(124,58,237,0.08)">🧠</div>
+<h3>L'IA analyse</h3>
+<p>GPT-4o Vision extrait les frames clés, analyse chaque répétition, évalue ta technique sur 4 dimensions.</p>
 </div>
-<div class="step-card glass reveal reveal-delay-3">
+<div class="step-card reveal reveal-d3">
 <div class="step-num">03</div>
-<div class="step-icon">📊</div>
-<h3>Reçois ton analyse</h3>
-<p>Score /100, analyse rep par rep, frames annotées, corrections prioritaires et exercices correctifs.</p>
+<div class="step-icon" style="background:rgba(16,185,129,0.08)">📊</div>
+<h3>Reçois ton rapport</h3>
+<p>Score /100, corrections détaillées, frames annotées et exercices correctifs personnalisés. En moins de 3 min.</p>
 </div>
 </div>
 </div>
 </section>
 
-<!-- ANALYSE EN DETAIL -->
-<section class="section" id="analyse" style="background:var(--primary)">
-<div class="grid-bg"></div>
-<div class="container" style="position:relative;z-index:1">
-<div class="section-label reveal">Analyse complète</div>
-<h2 class="section-title reveal">Chaque détail <span class="gradient-text">compte</span></h2>
-<p class="text-dim reveal" style="margin-bottom:48px;max-width:500px;font-size:16px;line-height:1.6">Une analyse biomécanique complète propulsée par intelligence artificielle. Pas un simple feedback — un diagnostic technique.</p>
+<!-- ANALYSIS BENTO -->
+<section class="section" id="analyse" style="background:var(--bg2)">
+<div class="container">
+<div class="section-label reveal">L'analyse</div>
+<h2 class="section-title reveal reveal-d1">Un diagnostic <span class="gr">complet</span></h2>
+<p class="section-desc reveal reveal-d2">Chaque vidéo est décomposée en 4 dimensions pour un score précis et actionnable.</p>
 <div class="bento-grid">
-<div class="bento-card glass span-2 reveal">
-<div>
-<div class="card-label">Score global</div>
-<h3>Score de performance</h3>
-<p>Évaluation complète basée sur 4 critères : sécurité, efficacité, contrôle et symétrie.</p>
+<div class="bento-card span2 reveal reveal-d1">
+<h3>Score global /100</h3>
+<p>Évaluation complète de ta technique sur 4 dimensions biomécaniques fondamentales.</p>
+<div class="score-demo">
+<div class="dim-score">
+<div class="dim-ring"><svg viewBox="0 0 70 70"><circle class="bg" cx="35" cy="35" r="30"/><circle class="fill-cyan" cx="35" cy="35" r="30" stroke-dasharray="188" stroke-dashoffset="38"/></svg><div class="val">32</div></div>
+<div class="dim-label">Sécurité /40</div>
 </div>
-<div class="big-num gradient-text">87<span style="font-size:32px;-webkit-text-fill-color:var(--text-muted)">/100</span></div>
+<div class="dim-score">
+<div class="dim-ring"><svg viewBox="0 0 70 70"><circle class="bg" cx="35" cy="35" r="30"/><circle class="fill-emerald" cx="35" cy="35" r="30" stroke-dasharray="188" stroke-dashoffset="63"/></svg><div class="val">24</div></div>
+<div class="dim-label">Efficacité /30</div>
 </div>
-<div class="bento-card glass tall reveal">
-<div>
-<div class="card-label">Rep par rep</div>
-<h3>Analyse de chaque répétition</h3>
-<p>Chaque rep est évaluée individuellement. Identifie la fatigue, les compensations et la dégradation technique.</p>
+<div class="dim-score">
+<div class="dim-ring"><svg viewBox="0 0 70 70"><circle class="bg" cx="35" cy="35" r="30"/><circle class="fill-purple" cx="35" cy="35" r="30" stroke-dasharray="188" stroke-dashoffset="94"/></svg><div class="val">17</div></div>
+<div class="dim-label">Contrôle /20</div>
 </div>
-<div style="display:flex;flex-direction:column;gap:6px;margin-top:16px">
-<div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:12px"><span style="color:var(--text-muted)">Rep 1</span><span style="color:var(--cyan)">92</span></div>
-<div class="mini-bar"><div class="mini-bar-fill" data-width="92" style="width:0;background:var(--cyan)"></div></div>
-<div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:12px"><span style="color:var(--text-muted)">Rep 2</span><span style="color:var(--cyan)">89</span></div>
-<div class="mini-bar"><div class="mini-bar-fill" data-width="89" style="width:0;background:var(--cyan)"></div></div>
-<div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:12px"><span style="color:var(--text-muted)">Rep 3</span><span style="color:var(--blue)">84</span></div>
-<div class="mini-bar"><div class="mini-bar-fill" data-width="84" style="width:0;background:var(--blue)"></div></div>
-<div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:12px"><span style="color:var(--text-muted)">Rep 4</span><span style="color:var(--amber)">76</span></div>
-<div class="mini-bar"><div class="mini-bar-fill" data-width="76" style="width:0;background:var(--amber)"></div></div>
-<div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:12px"><span style="color:var(--text-muted)">Rep 5</span><span style="color:var(--amber)">71</span></div>
-<div class="mini-bar"><div class="mini-bar-fill" data-width="71" style="width:0;background:var(--amber)"></div></div>
+<div class="dim-score">
+<div class="dim-ring"><svg viewBox="0 0 70 70"><circle class="bg" cx="35" cy="35" r="30"/><circle class="fill-amber" cx="35" cy="35" r="30" stroke-dasharray="188" stroke-dashoffset="150"/></svg><div class="val">8</div></div>
+<div class="dim-label">Symétrie /10</div>
 </div>
 </div>
-<div class="bento-card glass reveal">
-<div class="card-label">Visuel</div>
+</div>
+<div class="bento-card span2 reveal reveal-d2">
+<div class="bento-icon">🎯</div>
+<h3>Corrections personnalisées</h3>
+<p>Chaque erreur détectée est accompagnée d'une correction précise et d'exercices correctifs adaptés à ton niveau et ta morphologie.</p>
+</div>
+<div class="bento-card span2 reveal reveal-d3">
+<div class="bento-icon">🏋️</div>
+<h3>82+ exercices supportés</h3>
+<p>Squat, bench, deadlift, OHP, et bien plus encore. De nouveaux exercices chaque semaine.</p>
+<div class="exercise-pills">
+<span>Squat</span><span>Bench Press</span><span>Deadlift</span><span>OHP</span><span>Barbell Row</span><span>Pull-up</span><span>Clean</span><span>Snatch</span><span>+74</span>
+</div>
+</div>
+<div class="bento-card reveal reveal-d4">
+<div class="bento-icon">🖼️</div>
 <h3>Frames annotées</h3>
-<p>Captures de tes positions clés avec annotations visuelles des points à corriger.</p>
-<div style="margin-top:16px;display:flex;gap:8px">
-<div style="flex:1;aspect-ratio:1;border-radius:8px;background:var(--elevated);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;font-size:24px">📐</div>
-<div style="flex:1;aspect-ratio:1;border-radius:8px;background:var(--elevated);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;font-size:24px">📸</div>
+<p>Les moments clés de chaque rep sont capturés et annotés visuellement.</p>
 </div>
-</div>
-<div class="bento-card glass reveal">
-<div class="card-label">Corrections</div>
-<h3>Priorités identifiées</h3>
-<p>Les erreurs les plus impactantes classées par priorité avec des consignes concrètes.</p>
-</div>
-<div class="bento-card glass reveal">
-<div class="card-label">Correctifs</div>
-<h3>Exercices recommandés</h3>
-<p>Exercices correctifs personnalisés pour adresser chaque faiblesse identifiée.</p>
-</div>
-<div class="bento-card glass reveal">
-<div class="card-label">Calibration</div>
+<div class="bento-card reveal reveal-d5">
+<div class="bento-icon">📐</div>
 <h3>Profil morpho</h3>
-<p>Analyse adaptée à ta morphologie unique : segments, proportions, mobilité.</p>
+<p>3 photos suffisent pour calibrer l'IA à tes proportions uniques.</p>
 </div>
 </div>
 </div>
 </section>
 
-<!-- SCORE BREAKDOWN -->
-<section class="section">
+<!-- TESTIMONIALS -->
+<section class="testimonials">
 <div class="container">
-<div class="section-label reveal">Scoring</div>
-<h2 class="section-title reveal">4 dimensions.<br><span class="gradient-text">Un score.</span></h2>
-<p class="text-dim reveal" style="margin-bottom:48px;max-width:500px;font-size:16px;line-height:1.6">Chaque mouvement est évalué selon 4 critères fondamentaux de la biomécanique appliquée.</p>
-<div class="score-grid">
-<div class="score-item glass reveal">
-<div class="score-ring">
-<svg><circle class="track" cx="40" cy="40" r="34" stroke-dasharray="213.6"/><circle class="fill" cx="40" cy="40" r="34" stroke="var(--cyan)" stroke-dasharray="213.6" stroke-dashoffset="213.6" data-target="85.4"/></svg>
-<div class="ring-val" style="color:var(--cyan)">/40</div>
+<div class="section-label reveal" style="justify-content:center;display:flex">Témoignages</div>
+<h2 class="section-title reveal reveal-d1" style="text-align:center">Ce qu'ils en <span class="pr">pensent</span></h2>
+<div class="testi-grid">
+<div class="testi-card reveal reveal-d1">
+<div class="testi-stars">★★★★★</div>
+<p class="testi-text">"Je me fais un repas plaisir tous les 2 jours et j'ai le meilleur corps que j'ai jamais eu."</p>
+<div class="testi-author">— Laura B.</div>
 </div>
-<div class="score-info"><h4>Sécurité</h4><p>Positions articulaires, charge sur les structures passives, risque de blessure.</p></div>
+<div class="testi-card reveal reveal-d2">
+<div class="testi-stars">★★★★★</div>
+<p class="testi-text">"Le seul coach qui a réussi à faire ressortir mes abdos et ça c'est énorme pour moi."</p>
+<div class="testi-author">— Bastien M.</div>
 </div>
-<div class="score-item glass reveal">
-<div class="score-ring">
-<svg><circle class="track" cx="40" cy="40" r="34" stroke-dasharray="213.6"/><circle class="fill" cx="40" cy="40" r="34" stroke="var(--emerald)" stroke-dasharray="213.6" stroke-dashoffset="213.6" data-target="149.5"/></svg>
-<div class="ring-val" style="color:var(--emerald)">/30</div>
-</div>
-<div class="score-info"><h4>Efficacité</h4><p>Trajectoire, ROM, recrutement musculaire cible, tempo optimal.</p></div>
-</div>
-<div class="score-item glass reveal">
-<div class="score-ring">
-<svg><circle class="track" cx="40" cy="40" r="34" stroke-dasharray="213.6"/><circle class="fill" cx="40" cy="40" r="34" stroke="var(--blue)" stroke-dasharray="213.6" stroke-dashoffset="213.6" data-target="170.9"/></svg>
-<div class="ring-val" style="color:var(--blue)">/20</div>
-</div>
-<div class="score-info"><h4>Contrôle</h4><p>Stabilité, contrôle excentrique, absence de compensations dynamiques.</p></div>
-</div>
-<div class="score-item glass reveal">
-<div class="score-ring">
-<svg><circle class="track" cx="40" cy="40" r="34" stroke-dasharray="213.6"/><circle class="fill" cx="40" cy="40" r="34" stroke="var(--amber)" stroke-dasharray="213.6" stroke-dashoffset="213.6" data-target="192.2"/></svg>
-<div class="ring-val" style="color:var(--amber)">/10</div>
-</div>
-<div class="score-info"><h4>Symétrie</h4><p>Équilibre gauche/droite, compensations latérales, déséquilibres.</p></div>
-</div>
-</div>
-</div>
-</section>
-
-<!-- EXERCICES -->
-<section class="section" style="background:var(--primary)">
-<div class="container">
-<div class="section-label reveal">Compatibilité</div>
-<h2 class="section-title reveal"><span class="gradient-text">82+ exercices</span> supportés</h2>
-<p class="text-dim reveal" style="margin-bottom:40px;font-size:16px">Et on en ajoute chaque semaine.</p>
-<div class="exercises-wrap reveal" id="exerciseTags"></div>
-</div>
-</section>
-
-<!-- MORPHO -->
-<section class="section" id="morpho">
-<div class="container">
-<div class="section-label reveal">Personnalisation</div>
-<h2 class="section-title reveal">Profil <span class="gradient-text">morphologique</span></h2>
-<p class="text-dim reveal" style="margin-bottom:48px;max-width:500px;font-size:16px;line-height:1.6">3 photos suffisent pour calibrer l'IA à ta morphologie unique. Chaque analyse devient personnalisée.</p>
-<div class="morpho-grid">
-<div class="morpho-steps">
-<div class="morpho-step reveal">
-<div class="ms-num">01</div>
-<div><h4>Photo de face</h4><p>Épaules, bassin, genoux — analyse des alignements frontaux.</p></div>
-</div>
-<div class="morpho-step reveal">
-<div class="ms-num">02</div>
-<div><h4>Photo de profil</h4><p>Courbures rachidiennes, antéversion pelvienne, position de la tête.</p></div>
-</div>
-<div class="morpho-step reveal">
-<div class="ms-num">03</div>
-<div><h4>Photo de dos</h4><p>Symétrie scapulaire, tonus postural, déséquilibres visibles.</p></div>
-</div>
-</div>
-<div class="morpho-visual reveal">
-<div class="silhouette">
-<div class="measure-line" style="width:80px;top:30%;left:-30px" data-label="Épaules"></div>
-<div class="measure-line" style="width:60px;top:55%;left:-20px" data-label="Bassin"></div>
-<div class="measure-line" style="width:50px;top:75%;left:-15px" data-label="Genoux"></div>
-</div>
-</div>
-</div>
-</div>
-</section>
-
-<!-- TARIFS -->
-<section class="section" id="tarifs" style="background:var(--primary)">
-<div class="grid-bg"></div>
-<div class="container" style="position:relative;z-index:1">
-<div class="section-label reveal">Tarifs</div>
-<h2 class="section-title reveal">Investis dans ta <span class="gradient-text">technique</span></h2>
-<div class="free-banner reveal">
-<p>🎁 <span>1 analyse offerte</span> — teste gratuitement, sans engagement</p>
-</div>
-<div class="pricing-grid">
-<div class="pricing-card glass reveal reveal-delay-1">
-<h3>Starter</h3>
-<div class="pricing-price">29,99<span>€</span></div>
-<div class="pricing-period">5 analyses</div>
-<ul class="pricing-features">
-<li>Score /100 détaillé</li>
-<li>Analyse rep par rep</li>
-<li>Frames annotées</li>
-<li>Corrections prioritaires</li>
-<li>Exercices correctifs</li>
-</ul>
-<a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20le%20pack%20Starter" target="_blank" class="btn-secondary">Choisir Starter</a>
-</div>
-<div class="pricing-card glass featured reveal reveal-delay-2">
-<div class="pricing-badge">POPULAIRE</div>
-<h3>Pro</h3>
-<div class="pricing-price">59,99<span>€</span></div>
-<div class="pricing-period">20 analyses</div>
-<ul class="pricing-features">
-<li>Tout du Starter</li>
-<li>Profil morphologique</li>
-<li>Analyses calibrées</li>
-<li>Historique de progression</li>
-<li>Support prioritaire</li>
-</ul>
-<a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20le%20pack%20Pro" target="_blank" class="btn-cta">Choisir Pro</a>
-</div>
-<div class="pricing-card glass reveal reveal-delay-3">
-<h3>Illimité</h3>
-<div class="pricing-price">99,99<span>€</span></div>
-<div class="pricing-period">par an — analyses illimitées</div>
-<ul class="pricing-features">
-<li>Tout du Pro</li>
-<li>Analyses illimitées</li>
-<li>Accès nouvelles features</li>
-<li>Dashboard de suivi</li>
-<li>Coaching IA avancé</li>
-</ul>
-<a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20le%20pack%20Illimité" target="_blank" class="btn-secondary">Choisir Illimité</a>
+<div class="testi-card reveal reveal-d3">
+<div class="testi-stars">★★★★★</div>
+<p class="testi-text">"Ton Ebook est tellement complet et précis, j'ai jamais autant appris."</p>
+<div class="testi-author">— Clément P.</div>
 </div>
 </div>
 </div>
 </section>
 
 <!-- ABOUT -->
-<section class="section">
+<section class="section" id="about" style="position:relative;overflow:hidden">
+<img class="about-watermark" src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/5fd26bf8a848a19741305727_monogram-white.svg" alt="" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;opacity:.03;pointer-events:none">
 <div class="container">
-<div class="section-label reveal">Créateur</div>
-<h2 class="section-title reveal">Conçu par <span class="gradient-text">AchZod</span></h2>
-<div class="about-card glass reveal" style="margin-top:40px">
-<div class="about-avatar">AZ</div>
-<div class="about-info">
-<h3>Achkan Zod</h3>
-<p>Coach sportif, créateur de contenu et passionné de biomécanique. FORMCHECK combine 10 ans d'expertise terrain avec l'IA la plus avancée pour démocratiser l'analyse technique.</p>
-<div class="about-stats">
-<div class="about-stat"><div class="val" data-count="85900">0</div><div class="lab">abonnés YouTube</div></div>
-<div class="about-stat"><div class="val" data-count="11">0</div><div class="lab">certifications</div></div>
-<div class="about-stat"><div class="val" data-count="10">0</div><div class="lab">ans d'expérience</div></div>
+<div class="section-label reveal">Le créateur</div>
+<h2 class="section-title reveal reveal-d1">Conçu par <span class="gr">AchZod</span></h2>
+<div class="about-grid">
+<div class="about-photo reveal">
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/6917b9839a5246daca173740_Achzod_Essan_Zram-53.jpg" alt="Achzod">
+</div>
+<div class="about-info reveal reveal-d2">
+<h3>Achzod Essan Zram</h3>
+<div class="about-role">Coach sportif certifié • Fondateur AchZod Coaching</div>
+<p>FORMCHECK est né de 10 ans d'expérience en coaching sportif et d'une passion pour la technologie. L'objectif : rendre l'analyse biomécanique professionnelle accessible à tous, directement depuis ton téléphone.</p>
+<div class="cred-list">
+<div class="cred-item"><div class="cred-icon">🎓</div><span>11 certifications professionnelles</span></div>
+<div class="cred-item"><div class="cred-icon">⏱️</div><span>10 ans d'expérience terrain</span></div>
+<div class="cred-item"><div class="cred-icon">📺</div><span>85k+ abonnés YouTube</span></div>
+<div class="cred-item"><div class="cred-icon">🏆</div><span>+98% de taux de réussite client</span></div>
+<div class="cred-item"><div class="cred-icon">🤖</div><span>Powered by GPT-4o Vision</span></div>
 </div>
 </div>
-</div>
-<div class="cert-marquee">
-<div class="cert-track" id="certTrack"></div>
 </div>
 </div>
 </section>
 
-<!-- SOCIAL PROOF -->
-<section class="section" style="background:var(--primary)">
+<!-- PRICING -->
+<section class="section" id="tarifs" style="background:var(--bg2)">
 <div class="container">
-<div class="proof-grid">
-<div class="proof-card glass reveal"><div class="num gradient-text" data-count="2400">0</div><div class="lab">analyses réalisées</div></div>
-<div class="proof-card glass reveal"><div class="num gradient-text" data-count="89">0</div><div class="lab">score moyen</div></div>
-<div class="proof-card glass reveal"><div class="num gradient-text" data-count="82">0</div><div class="lab">exercices</div></div>
-<div class="proof-card glass reveal"><div class="num gradient-text" data-count="98">0</div><div class="lab">% satisfaction</div></div>
+<div class="section-label reveal" style="display:flex;justify-content:center">Tarifs</div>
+<h2 class="section-title reveal reveal-d1" style="text-align:center">Choisis ton <span class="gr">plan</span></h2>
+<p class="section-desc reveal reveal-d2" style="text-align:center;margin:0 auto 0">Ta première analyse est offerte, quel que soit le plan.</p>
+<div class="pricing-grid">
+<div class="price-card reveal reveal-d1">
+<div class="plan-name">Starter</div>
+<div class="price">29.99<span>€</span></div>
+<div class="price-sub">5 analyses</div>
+<ul class="price-features">
+<li>5 analyses complètes</li>
+<li>Score /100 détaillé</li>
+<li>Corrections personnalisées</li>
+<li>Frames annotées</li>
+<li>Exercices correctifs</li>
+</ul>
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="price-btn">Commencer</a>
+</div>
+<div class="price-card popular reveal reveal-d2">
+<div class="plan-name">Pro</div>
+<div class="price">59.99<span>€</span></div>
+<div class="price-sub">20 analyses</div>
+<ul class="price-features">
+<li>20 analyses complètes</li>
+<li>Score /100 détaillé</li>
+<li>Corrections personnalisées</li>
+<li>Frames annotées</li>
+<li>Profil morphologique</li>
+<li>Exercices correctifs</li>
+<li>Suivi de progression</li>
+</ul>
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="price-btn">Commencer</a>
+</div>
+<div class="price-card reveal reveal-d3">
+<div class="plan-name">Illimité</div>
+<div class="price">99.99<span>€/an</span></div>
+<div class="price-sub">Analyses illimitées</div>
+<ul class="price-features">
+<li>Analyses illimitées</li>
+<li>Score /100 détaillé</li>
+<li>Corrections personnalisées</li>
+<li>Frames annotées</li>
+<li>Profil morphologique</li>
+<li>Exercices correctifs</li>
+<li>Suivi de progression</li>
+<li>Accès prioritaire</li>
+</ul>
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="price-btn">Commencer</a>
+</div>
 </div>
 </div>
 </section>
@@ -559,38 +592,38 @@ Commencer sur WhatsApp
 <!-- FAQ -->
 <section class="section" id="faq">
 <div class="container">
-<div class="section-label reveal" style="justify-content:center">FAQ</div>
-<h2 class="section-title reveal" style="text-align:center">Questions <span class="gradient-text">fréquentes</span></h2>
-<div class="faq-list" style="margin-top:48px">
-<div class="faq-item glass reveal">
+<div class="section-label reveal" style="display:flex;justify-content:center">FAQ</div>
+<h2 class="section-title reveal reveal-d1" style="text-align:center">Questions <span class="gr">fréquentes</span></h2>
+<div class="faq-list">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">Comment ça marche concrètement ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">Tu envoies une vidéo de ton exercice sur WhatsApp au numéro FORMCHECK. L'IA analyse ta technique en quelques minutes et te renvoie un rapport complet : score /100, analyse de chaque rep, frames annotées, corrections et exercices correctifs.</div></div>
 </div>
-<div class="faq-item glass reveal">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">Faut-il installer une application ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">Non ! FORMCHECK fonctionne directement sur WhatsApp. Pas d'app à télécharger, pas de compte à créer. Tu as juste besoin de WhatsApp.</div></div>
 </div>
-<div class="faq-item glass reveal">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">Combien de temps prend une analyse ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">En moyenne moins de 3 minutes. L'IA traite ta vidéo, extrait les frames clés, analyse chaque répétition et génère un rapport détaillé quasi-instantanément.</div></div>
 </div>
-<div class="faq-item glass reveal">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">Comment filmer pour une bonne analyse ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">Place ton téléphone de profil (pour la plupart des exercices) ou de face, à hauteur du bassin environ. Assure-toi que tout ton corps est visible dans le cadre. Pas besoin de matériel pro — ton téléphone suffit.</div></div>
 </div>
-<div class="faq-item glass reveal">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">C'est quoi le profil morphologique ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">En envoyant 3 photos (face, profil, dos), l'IA analyse tes proportions, segments et alignements. Ça permet de calibrer toutes les analyses futures à ta morphologie unique — parce qu'un squat parfait n'est pas le même pour tout le monde.</div></div>
 </div>
-<div class="faq-item glass reveal">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">Quels exercices sont supportés ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">Plus de 82 exercices : squat, bench press, deadlift, overhead press, tous les mouvements de musculation classiques, haltérophilie, exercices au poids du corps et bien plus. On en ajoute chaque semaine.</div></div>
 </div>
-<div class="faq-item glass reveal">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">Est-ce que c'est fiable ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">FORMCHECK utilise GPT-4o Vision, le modèle d'IA le plus avancé au monde, combiné avec une base de connaissances biomécaniques construite par un coach certifié avec 10 ans d'expérience. Ce n'est pas un gadget — c'est un vrai outil d'analyse.</div></div>
 </div>
-<div class="faq-item glass reveal">
+<div class="faq-item reveal">
 <div class="faq-q" onclick="toggleFaq(this)">Je peux essayer gratuitement ?<span class="icon">+</span></div>
 <div class="faq-a"><div class="faq-a-inner">Oui ! Ta première analyse est offerte. Envoie simplement "Salut" sur WhatsApp et filme ton premier exercice. Zéro engagement.</div></div>
 </div>
@@ -598,14 +631,26 @@ Commencer sur WhatsApp
 </div>
 </section>
 
+<!-- NEWSLETTER -->
+<section class="newsletter">
+<div class="newsletter-inner">
+<h2 class="reveal">RESTE DANS <span style="background:linear-gradient(135deg,var(--purple),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">LE LAB</span></h2>
+<p class="reveal reveal-d1">Tips training, mises à jour FORMCHECK, contenus exclusifs. Pas de spam, que du lourd.</p>
+<form class="newsletter-form reveal reveal-d2" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓ Inscrit !';this.querySelector('button').style.background='var(--emerald)'">
+<input type="email" placeholder="Ton adresse email" required>
+<button type="submit">S'inscrire</button>
+</form>
+</div>
+</section>
+
 <!-- FINAL CTA -->
 <section class="final-cta">
-<div class="orb orb-cyan" style="top:20%;left:30%"></div>
-<div class="orb orb-emerald" style="bottom:20%;right:30%"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 <div class="container" style="position:relative;z-index:1">
-<h2 class="reveal">Prêt à perfectionner<br>ta <span class="gradient-text">technique</span> ?</h2>
-<p class="reveal">Ta première analyse est offerte. Commence maintenant.</p>
-<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="btn-cta reveal" style="font-size:18px;padding:20px 40px">
+<h2 class="reveal">Prêt à perfectionner<br>ta <span class="gradient" style="background:linear-gradient(135deg,var(--cyan),var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">technique</span> ?</h2>
+<p class="reveal reveal-d1">Ta première analyse est offerte. Commence maintenant.</p>
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="btn-primary reveal reveal-d2" style="font-size:18px;padding:22px 44px;display:inline-flex">
 <svg viewBox="0 0 24 24" fill="currentColor" style="width:24px;height:24px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.347 0-4.518-.809-6.235-2.163l-.436-.351-3.022 1.013 1.013-3.022-.351-.436A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
 Commencer sur WhatsApp
 </a>
@@ -617,8 +662,8 @@ Commencer sur WhatsApp
 <div class="container">
 <div class="footer-grid">
 <div class="footer-brand">
-<div class="nav-logo">FORM<span style="color:var(--cyan)">CHECK</span></div>
-<p>Analyse biomécanique par IA. Envoie une vidéo, reçois un diagnostic technique complet.</p>
+<img src="https://cdn.prod.website-files.com/5fd0a9c4883524725ec72282/5fd26bf8a848a19741305727_monogram-white.svg" alt="AchZod">
+<p>Analyse biomécanique par IA. Envoie une vidéo, reçois un diagnostic technique complet. Powered by GPT-4o Vision.</p>
 </div>
 <div class="footer-col">
 <h4>Navigation</h4>
@@ -632,91 +677,48 @@ Commencer sur WhatsApp
 <a href="https://youtube.com/@achzod" target="_blank">YouTube</a>
 <a href="https://instagram.com/achzod" target="_blank">Instagram</a>
 <a href="https://twitter.com/achzod" target="_blank">Twitter</a>
-<a href="https://www.achzodcoaching.com" target="_blank">Coaching</a>
+<a href="https://facebook.com/achzod" target="_blank">Facebook</a>
+<a href="https://www.achzodcoaching.com" target="_blank">AchZod Coaching</a>
+</div>
+<div class="footer-col">
+<h4>Contact</h4>
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank">WhatsApp</a>
+<a href="https://www.achzodcoaching.com" target="_blank">achzodcoaching.com</a>
 </div>
 </div>
 <div class="footer-bottom">
-<span>© 2025 FORMCHECK by AchZod. Tous droits réservés.</span>
-<span>Propulsé par GPT-4o Vision</span>
+<p>© 2025 FORMCHECK by AchZod. Tous droits réservés.</p>
+<div class="footer-socials">
+<a href="https://youtube.com/@achzod" target="_blank" aria-label="YouTube">▶</a>
+<a href="https://instagram.com/achzod" target="_blank" aria-label="Instagram">◉</a>
+<a href="https://twitter.com/achzod" target="_blank" aria-label="Twitter">𝕏</a>
+<a href="https://facebook.com/achzod" target="_blank" aria-label="Facebook">f</a>
+</div>
 </div>
 </div>
 </footer>
 
-<!-- FLOATING WA -->
-<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="wa-float">
+<!-- WhatsApp Float -->
+<a href="https://wa.me/15557636881?text=Salut%20!" target="_blank" class="wa-float" aria-label="WhatsApp">
 <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.347 0-4.518-.809-6.235-2.163l-.436-.351-3.022 1.013 1.013-3.022-.351-.436A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
 </a>
 
 <script>
-// Exercises for marquee and tags
-const exercises=["Squat","Bench Press","Deadlift","Overhead Press","Barbell Row","Pull-up","Dips","Lunges","Romanian Deadlift","Hip Thrust","Leg Press","Hack Squat","Bulgarian Split Squat","Front Squat","Incline Bench","Cable Fly","Lat Pulldown","Seated Row","Face Pull","Lateral Raise","Curl Biceps","Triceps Extension","Leg Curl","Leg Extension","Calf Raise","Pendlay Row","T-Bar Row","Chest Press","Shoulder Press","Arnold Press","Clean","Snatch","Clean & Jerk","Push Press","Thruster","Muscle-Up","Handstand Push-up","Pistol Squat","Good Morning","Sumo Deadlift"];
-const categories=["Squat & Variantes","Développé Couché & Variantes","Soulevé de Terre & Variantes","Presse Épaules","Rowing & Tirage","Tractions & Dips","Fentes & Unilatéral","Hip Thrust & Fessiers","Leg Press & Machines","Haltérophilie","Poids du Corps","Isolation Bras","Isolation Jambes","Mobilité & Correctifs","Abdominaux","Gainage"];
-const certs=["NSCA-CSCS","NASM-CPT","FMS Level 2","PICP Level 3","Precision Nutrition L1","StrongFirst SFG","EXOS XPS","Gray Institute CAFS","Westside Barbell Certified","Biomécanique Appliquée","Coaching Sportif BPJEPS"];
-
-// Marquee
-const mt=document.getElementById('marqueeTrack');
-const allEx=[...exercises,...exercises];
-mt.innerHTML=allEx.map(e=>`<span class="marquee-item">${e}</span>`).join('');
-
-// Exercise tags
-document.getElementById('exerciseTags').innerHTML=categories.map(c=>`<span class="exercise-tag">${c}</span>`).join('');
-
-// Cert marquee
-const ct=document.getElementById('certTrack');
-ct.innerHTML=[...certs,...certs].map(c=>`<span class="cert-item">${c}</span>`).join('');
-
 // Navbar scroll
-const nav=document.getElementById('navbar');
-window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>50)});
+const navbar=document.querySelector('.navbar');
+window.addEventListener('scroll',()=>{navbar.classList.toggle('scrolled',window.scrollY>50)});
 
 // Reveal on scroll
-const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-// Count up animation
-const countObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){animateCount(e.target);countObs.unobserve(e.target)}})},{threshold:0.5});
-document.querySelectorAll('[data-count]').forEach(el=>countObs.observe(el));
-function animateCount(el){
-const target=parseInt(el.dataset.count);const prefix=el.dataset.prefix||'';const suffix=el.dataset.suffix||'';
-const duration=1500;const start=performance.now();
-const fmt=target>1000?(n)=>n.toLocaleString('fr-FR'):(n)=>n;
-function tick(now){
-const p=Math.min((now-start)/duration,1);
-const eased=1-Math.pow(1-p,3);
-el.textContent=prefix+fmt(Math.round(target*eased))+suffix;
-if(p<1)requestAnimationFrame(tick);else el.textContent=prefix+fmt(target)+suffix;
-}
-requestAnimationFrame(tick);
-}
-
-// Mini bars animation
-const barObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.width=e.target.dataset.width+'%';barObs.unobserve(e.target)}})},{threshold:0.3});
-document.querySelectorAll('.mini-bar-fill').forEach(el=>barObs.observe(el));
-
-// Score rings
-const ringObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.strokeDashoffset=e.target.dataset.target;ringObs.unobserve(e.target)}})},{threshold:0.5});
-document.querySelectorAll('.score-ring .fill').forEach(el=>ringObs.observe(el));
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 
 // FAQ toggle
-function toggleFaq(q){
-const item=q.parentElement;
-document.querySelectorAll('.faq-item').forEach(i=>{if(i!==item)i.classList.remove('open');});
-item.classList.toggle('open');
-const a=item.querySelector('.faq-a');
-if(item.classList.contains('open')){a.style.maxHeight=a.scrollHeight+'px'}else{a.style.maxHeight='0'}
-}
+function toggleFaq(el){const item=el.parentElement;const a=item.querySelector('.faq-a');const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-a').style.maxHeight=null});if(!isOpen){item.classList.add('open');a.style.maxHeight=a.scrollHeight+'px'}}
 
-// Parallax orbs
-let ticking=false;
-window.addEventListener('scroll',()=>{
-if(!ticking){requestAnimationFrame(()=>{
-const s=window.scrollY;
-document.querySelectorAll('.orb').forEach((o,i)=>{
-const speed=[0.03,-0.02,0.015][i%3];
-o.style.transform=`translateY(${s*speed}px)`;
-});
-ticking=false;});ticking=true}
-});
+// Counter animation
+const counters=document.querySelectorAll('.counter');
+const counterObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){const target=+e.target.dataset.target;const duration=1500;const start=performance.now();const animate=(now)=>{const progress=Math.min((now-start)/duration,1);const eased=1-Math.pow(1-progress,3);e.target.textContent=Math.floor(eased*target);if(progress<1)requestAnimationFrame(animate)};requestAnimationFrame(animate);counterObs.unobserve(e.target)}})},{threshold:0.5});
+counters.forEach(c=>counterObs.observe(c));
 
 // Close mobile nav on link click
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open')));
