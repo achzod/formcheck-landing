@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORMCHECK by ACHZOD — Analyse Biomécanique par IA sur WhatsApp</title>
+    <meta name="description" content="Envoie ta vidéo d'exercice sur WhatsApp, reçois une analyse biomécanique complète avec score /100, corrections et rapport détaillé. Propulsé par GPT-4o Vision AI.">
+    <meta property="og:title" content="FORMCHECK by ACHZOD — Analyse Biomécanique par IA">
+    <meta property="og:description" content="Envoie ta vidéo sur WhatsApp → reçois ton analyse biomécanique complète avec score /100, corrections rep par rep, et rapport HTML.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://formcheck-landing.onrender.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0a0a0a;
+            --bg2: #111111;
+            --bg3: #1a1a1a;
+            --accent: #00e5ff;
+            --accent2: #7c4dff;
+            --green: #00ff88;
+            --text: #ffffff;
+            --text2: #a0a0a0;
+            --text3: #666666;
+            --glass: rgba(255,255,255,0.05);
+            --glass-border: rgba(255,255,255,0.08);
+            --radius: 16px;
+            --whatsapp: #25D366;
+        }
+
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(10,10,10,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 0;
+        }
+        nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.2rem; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a { color: var(--text2); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta {
+            background: var(--whatsapp) !important; color: #fff !important; padding: 8px 20px;
+            border-radius: 50px; font-weight: 600; font-size: 0.85rem !important;
+        }
+        .mobile-menu { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 32px; border-radius: 50px; font-weight: 600;
+            text-decoration: none; font-size: 1rem; transition: all 0.3s;
+            border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--whatsapp), #128C7E);
+            color: white; box-shadow: 0 4px 24px rgba(37,211,102,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(37,211,102,0.4); }
+        .btn-secondary {
+            background: var(--glass); color: var(--text);
+            border: 1px solid var(--glass-border);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+        .btn-sm { padding: 12px 24px; font-size: 0.9rem; }
+
+        /* BADGE */
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 50px; font-size: 0.8rem;
+            background: rgba(0,229,255,0.1); color: var(--accent);
+            border: 1px solid rgba(0,229,255,0.2); margin-bottom: 24px;
+        }
+        .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center;
+            padding: 120px 0 80px; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; right: -30%;
+            width: 800px; height: 800px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: ''; position: absolute; bottom: -30%; left: -20%;
+            width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(124,77,255,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero .container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 1; }
+        .hero-content h1 { font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; margin-bottom: 24px; }
+        .hero-content h1 .gradient {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-content p { font-size: 1.15rem; color: var(--text2); margin-bottom: 32px; max-width: 500px; }
+        .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+        .hero-stats { display: flex; gap: 40px; margin-top: 48px; }
+        .hero-stat .num { font-family: 'Space Grotesk'; font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+        .hero-stat .label { font-size: 0.8rem; color: var(--text3); margin-top: 4px; }
+
+        /* PHONE MOCKUP */
+        .phone-mockup {
+            width: 300px; margin: 0 auto; background: #1c1c1e; border-radius: 40px;
+            padding: 12px; border: 2px solid #333; position: relative;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+        }
+        .phone-notch {
+            width: 120px; height: 28px; background: #0a0a0a; border-radius: 0 0 16px 16px;
+            margin: 0 auto 12px; position: relative; z-index: 2;
+        }
+        .phone-screen {
+            background: #0b141a; border-radius: 28px; padding: 16px; min-height: 420px;
+            overflow: hidden;
+        }
+        .chat-header {
+            display: flex; align-items: center; gap: 12px; padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;
+        }
+        .chat-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;
+        }
+        .chat-name { font-size: 0.85rem; font-weight: 600; }
+        .chat-status { font-size: 0.7rem; color: var(--whatsapp); }
+        .msg {
+            max-width: 85%; padding: 10px 14px; border-radius: 12px; margin-bottom: 8px;
+            font-size: 0.75rem; line-height: 1.5; animation: fadeInUp 0.6s ease both;
+        }
+        .msg-user { background: #005c4b; margin-left: auto; border-bottom-right-radius: 4px; }
+        .msg-bot { background: #1f2c34; border-bottom-left-radius: 4px; }
+        .msg:nth-child(2) { animation-delay: 0.3s; }
+        .msg:nth-child(3) { animation-delay: 0.6s; }
+        .msg:nth-child(4) { animation-delay: 0.9s; }
+        .msg:nth-child(5) { animation-delay: 1.2s; }
+        .msg-score { font-size: 1.5rem; font-weight: 700; color: var(--green); }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SECTIONS */
+        section { padding: 100px 0; }
+        .section-label {
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px;
+            color: var(--accent); margin-bottom: 16px; font-weight: 600;
+        }
+        .section-title { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 20px; line-height: 1.2; }
+        .section-subtitle { color: var(--text2); max-width: 600px; font-size: 1.05rem; }
+        .section-header { text-align: center; margin-bottom: 64px; }
+        .section-header .section-subtitle { margin: 0 auto; }
+
+        /* HOW IT WORKS */
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; position: relative; }
+        .steps::before {
+            content: ''; position: absolute; top: 60px; left: 15%; right: 15%;
+            height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0.3;
+        }
+        .step {
+            text-align: center; position: relative; padding: 40px 24px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: var(--radius); transition: transform 0.3s;
+        }
+        .step:hover { transform: translateY(-8px); }
+        .step-num {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Grotesk'; font-weight: 700; font-size: 1.2rem;
+            margin: 0 auto 24px; position: relative; z-index: 1;
+        }
+        .step-icon { font-size: 2.5rem; margin-bottom: 16px; }
+        .step h3 { font-size: 1.2rem; margin-bottom: 12px; }
+        .step p { color: var(--text2); font-size: 0.9rem; }
+
+        /* FEATURES */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .feature-card {
+            padding: 32px; background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: var(--radius); transition: all 0.3s;
+            position: relative; overflow: hidden;
+        }
+        .feature-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-4px); border-color: rgba(0,229,255,0.2); }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: rgba(0,229,255,0.1); display: flex; align-items: center;
+            justify-content: center; font-size: 1.5rem; margin-bottom: 20px;
+        }
+        .feature-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
+        .feature-card p { color: var(--text2); font-size: 0.9rem; }
+
+        /* EXERCISES */
+        .exercises-section { background: var(--bg2); }
+        .exercise-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+        .exercise-tag {
+            padding: 10px 20px; background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 50px; font-size: 0.85rem; color: var(--text2);
+            transition: all 0.3s; cursor: default;
+        }
+        .exercise-tag:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
+        .exercise-count {
+            text-align: center; margin-top: 32px;
+            font-family: 'Space Grotesk'; font-size: 1.2rem; color: var(--text3);
+        }
+        .exercise-count span { color: var(--accent); font-weight: 700; font-size: 2rem; }
+
+        /* PRICING */
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .pricing-card {
+            padding: 40px 32px; border-radius: 20px; position: relative;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            transition: transform 0.3s; display: flex; flex-direction: column;
+        }
+        .pricing-card:hover { transform: translateY(-8px); }
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(124,77,255,0.08));
+            border-color: rgba(0,229,255,0.3);
+        }
+        .pricing-card.featured::before {
+            content: '⭐ POPULAIRE'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            padding: 6px 20px; border-radius: 50px; font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .pricing-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+        .pricing-desc { color: var(--text3); font-size: 0.85rem; margin-bottom: 24px; }
+        .pricing-amount {
+            font-family: 'Space Grotesk'; font-size: 3rem; font-weight: 700; margin-bottom: 4px;
+        }
+        .pricing-amount .currency { font-size: 1.5rem; vertical-align: super; }
+        .pricing-amount .period { font-size: 0.9rem; color: var(--text3); font-weight: 400; }
+        .pricing-per { color: var(--text3); font-size: 0.8rem; margin-bottom: 32px; }
+        .pricing-features { list-style: none; margin-bottom: 32px; flex-grow: 1; }
+        .pricing-features li {
+            padding: 8px 0; font-size: 0.9rem; color: var(--text2);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+        .pricing-card .btn { width: 100%; justify-content: center; }
+
+        /* FREE BANNER */
+        .free-banner {
+            text-align: center; margin-top: 48px; padding: 32px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,229,255,0.08));
+            border: 1px solid rgba(0,255,136,0.2); border-radius: var(--radius);
+        }
+        .free-banner h3 { font-size: 1.5rem; margin-bottom: 8px; }
+        .free-banner h3 span { color: var(--green); }
+        .free-banner p { color: var(--text2); margin-bottom: 20px; }
+
+        /* SOCIAL PROOF */
+        .proof-section { background: var(--bg2); }
+        .proof-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .proof-card {
+            text-align: center; padding: 40px 24px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+        }
+        .proof-num {
+            font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .proof-label { color: var(--text2); font-size: 0.9rem; margin-top: 8px; }
+
+        /* ABOUT */
+        .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .about-avatar {
+            width: 200px; height: 200px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 4rem; font-family: 'Space Grotesk'; font-weight: 700;
+            margin-bottom: 32px;
+        }
+        .about-text h2 { font-size: 2rem; margin-bottom: 16px; }
+        .about-text p { color: var(--text2); margin-bottom: 16px; }
+        .cert-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
+        .cert-tag {
+            padding: 6px 14px; background: rgba(124,77,255,0.1); border: 1px solid rgba(124,77,255,0.2);
+            border-radius: 50px; font-size: 0.75rem; color: var(--accent2);
+        }
+        .social-links { display: flex; gap: 16px; margin-top: 24px; }
+        .social-links a {
+            width: 44px; height: 44px; border-radius: 50%; background: var(--glass);
+            border: 1px solid var(--glass-border); display: flex; align-items: center;
+            justify-content: center; text-decoration: none; font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        .social-links a:hover { border-color: var(--accent); background: rgba(0,229,255,0.1); }
+
+        /* FAQ */
+        .faq-list { max-width: 800px; margin: 0 auto; }
+        .faq-item {
+            border-bottom: 1px solid var(--glass-border); overflow: hidden;
+        }
+        .faq-q {
+            width: 100%; padding: 24px 0; background: none; border: none;
+            color: var(--text); font-size: 1.05rem; font-weight: 500;
+            text-align: left; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center;
+            font-family: 'Inter', sans-serif;
+        }
+        .faq-q::after { content: '+'; font-size: 1.5rem; color: var(--accent); transition: transform 0.3s; }
+        .faq-q.active::after { transform: rotate(45deg); }
+        .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .faq-a-inner { padding: 0 0 24px; color: var(--text2); font-size: 0.95rem; line-height: 1.8; }
+
+        /* FOOTER */
+        footer {
+            background: var(--bg2); border-top: 1px solid var(--glass-border);
+            padding: 60px 0 30px;
+        }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .footer-brand p { color: var(--text3); font-size: 0.85rem; margin-top: 12px; max-width: 300px; }
+        .footer-col h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); margin-bottom: 16px; }
+        .footer-col a { display: block; color: var(--text2); text-decoration: none; font-size: 0.9rem; padding: 4px 0; transition: color 0.3s; }
+        .footer-col a:hover { color: var(--accent); }
+        .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid var(--glass-border); color: var(--text3); font-size: 0.8rem; }
+
+        /* FLOATING WHATSAPP */
+        .wa-float {
+            position: fixed; bottom: 24px; right: 24px; z-index: 99;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--whatsapp); display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 4px 24px rgba(37,211,102,0.4);
+            text-decoration: none; transition: transform 0.3s;
+            animation: float 3s ease-in-out infinite;
+        }
+        .wa-float:hover { transform: scale(1.1); }
+        .wa-float svg { width: 32px; height: 32px; fill: white; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* SCROLL ANIMATIONS */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* RESPONSIVE */
+        @media (max-width: 968px) {
+            .hero .container { grid-template-columns: 1fr; text-align: center; }
+            .hero-content p { margin: 0 auto 32px; }
+            .hero-buttons { justify-content: center; }
+            .hero-stats { justify-content: center; }
+            .phone-mockup { margin-top: 40px; }
+            .steps { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+            .steps::before { display: none; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+            .proof-grid { grid-template-columns: repeat(2, 1fr); }
+            .about-content { grid-template-columns: 1fr; text-align: center; }
+            .about-avatar { margin: 0 auto 32px; }
+            .cert-list { justify-content: center; }
+            .social-links { justify-content: center; }
+            .footer-grid { grid-template-columns: 1fr; text-align: center; }
+            .nav-links { display: none; }
+            .mobile-menu { display: block; }
+        }
+        @media (max-width: 600px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .hero-stats { flex-wrap: wrap; gap: 24px; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .btn { width: 100%; justify-content: center; }
+        }
+
+        /* MOBILE NAV */
+        .mobile-nav {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10,10,10,0.98); z-index: 200;
+            flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+        }
+        .mobile-nav.open { display: flex; }
+        .mobile-nav a { color: var(--text); text-decoration: none; font-size: 1.3rem; font-family: 'Space Grotesk'; }
+        .mobile-nav .close-btn { position: absolute; top: 20px; right: 24px; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="container">
+        <div class="nav-logo">FORM<span>CHECK</span></div>
+        <div class="nav-links">
+            <a href="#how">Comment ça marche</a>
+            <a href="#features">Fonctionnalités</a>
+            <a href="#pricing">Tarifs</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20essayer%20FORMCHECK%20🎯" class="nav-cta">Essai Gratuit →</a>
+        </div>
+        <button class="mobile-menu" onclick="document.getElementById('mobileNav').classList.add('open')">☰</button>
+    </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div id="mobileNav" class="mobile-nav">
+    <button class="close-btn" onclick="this.parentElement.classList.remove('open')">✕</button>
+    <a href="#how" onclick="this.parentElement.classList.remove('open')">Comment ça marche</a>
+    <a href="#features" onclick="this.parentElement.classList.remove('open')">Fonctionnalités</a>
+    <a href="#pricing" onclick="this.parentElement.classList.remove('open')">Tarifs</a>
+    <a href="#about" onclick="this.parentElement.classList.remove('open')">À propos</a>
+    <a href="#faq" onclick="this.parentElement.classList.remove('open')">FAQ</a>
+    <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20essayer%20FORMCHECK%20🎯" class="btn btn-primary">💬 Essai Gratuit</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="badge"><span class="badge-dot"></span> Propulsé par GPT-4o Vision AI</div>
+            <h1>Ton coach biomécanique <span class="gradient">sur WhatsApp</span></h1>
+            <p>Envoie ta vidéo d'exercice → reçois une analyse complète avec score /100, corrections rep par rep, et un rapport détaillé. En quelques minutes.</p>
+            <div class="hero-buttons">
+                <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20essayer%20FORMCHECK%20🎯" class="btn btn-primary">💬 Essayer Gratuitement</a>
+                <a href="#how" class="btn btn-secondary">Comment ça marche</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="num">82+</div>
+                    <div class="label">Exercices supportés</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="num">/100</div>
+                    <div class="label">Score de forme</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="num">IA</div>
+                    <div class="label">GPT-4o Vision</div>
+                </div>
+            </div>
+        </div>
+        <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <div class="chat-header">
+                    <div class="chat-avatar">FC</div>
+                    <div>
+                        <div class="chat-name">FORMCHECK</div>
+                        <div class="chat-status">● en ligne</div>
+                    </div>
+                </div>
+                <div class="msg msg-user">📹 Voici ma vidéo de squat !</div>
+                <div class="msg msg-bot">🔬 Analyse en cours de ta vidéo...</div>
+                <div class="msg msg-bot">
+                    <div class="msg-score">87/100</div>
+                    ✅ Profondeur : excellente<br>
+                    ⚠️ Genoux : léger valgus en rep 3<br>
+                    📐 Barre légèrement avancée<br>
+                    📋 Rapport HTML envoyé ↓
+                </div>
+                <div class="msg msg-bot">🏋️ Exercices correctifs recommandés : Goblet squat, Cossack squat</div>
+                <div class="msg msg-user">Merci ! C'est incroyable 🔥</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+    <div class="container">
+        <div class="section-header reveal">
+            <div class="section-label">Comment ça marche</div>
+            <h2 class="section-title">3 étapes. C'est tout.</h2>
+            <p class="section-subtitle">Pas d'app à télécharger, pas de compte à créer. Juste WhatsApp.</p>
+        </div>
+        <div class="steps">
+            <div class="step reveal">
+                <div class="step-num">1</div>
+                <div class="step-icon">🎬</div>
+                <h3>Filme ton exercice</h3>
+                <p>Place ton téléphone de profil et filme ta série complète. N'importe quel exercice parmi 82+ supportés.</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">2</div>
+                <div class="step-icon">📱</div>
+                <h3>Envoie sur WhatsApp</h3>
+                <p>Envoie ta vidéo au bot FORMCHECK sur WhatsApp. C'est comme envoyer un message à un ami.</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">3</div>
+                <div class="step-icon">📊</div>
+                <h3>Reçois ton analyse</h3>
+                <p>Score /100, analyse rep par rep, frames annotées, corrections précises et exercices correctifs.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background: var(--bg2);">
+    <div class="container">
+        <div class="section-header reveal">
+            <div class="section-label">Fonctionnalités</div>
+            <h2 class="section-title">Bien plus qu'un simple avis</h2>
+            <p class="section-subtitle">Une analyse biomécanique de niveau professionnel, accessible à tous.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon">🎯</div>
+                <h3>Score de forme /100</h3>
+                <p>Un score global objectif qui mesure la qualité de ton exécution, calculé par l'IA sur des critères biomécaniques précis.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">🔄</div>
+                <h3>Analyse rep par rep</h3>
+                <p>Chaque répétition est analysée individuellement. Tu sais exactement où ta forme se dégrade au fil de la série.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">📐</div>
+                <h3>Frames annotées</h3>
+                <p>Des images clés de ta vidéo avec annotations visuelles : angles, trajectoires, points d'attention.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">🩹</div>
+                <h3>Corrections précises</h3>
+                <p>Des corrections concrètes et actionnables, pas du jargon. Tu sais exactement quoi corriger et comment.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">🏋️</div>
+                <h3>Exercices correctifs</h3>
+                <p>Des exercices accessoires ciblés pour corriger tes faiblesses spécifiques identifiées par l'analyse.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">📏</div>
+                <h3>Profil morphologique</h3>
+                <p>Envoie 3 photos (face/profil/dos) et reçois une analyse calibrée à TES proportions. Fémurs longs ? Bras courts ? L'IA s'adapte.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">📄</div>
+                <h3>Rapport HTML complet</h3>
+                <p>Un rapport interactif détaillé avec toutes les données, graphiques et recommandations. Consultable depuis n'importe quel appareil.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">🌐</div>
+                <h3>En français</h3>
+                <p>Tout est en français. Les analyses, les corrections, le rapport. Pas de traduction approximative.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">⚡</div>
+                <h3>Résultat en minutes</h3>
+                <p>L'analyse est prête en quelques minutes. Pas besoin d'attendre des heures ou des jours pour avoir un retour.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- EXERCISES -->
+<section class="exercises-section" id="exercises">
+    <div class="container">
+        <div class="section-header reveal">
+            <div class="section-label">Exercices supportés</div>
+            <h2 class="section-title">82+ exercices analysables</h2>
+            <p class="section-subtitle">Du squat au curl, tous les mouvements fondamentaux sont couverts.</p>
+        </div>
+        <div class="exercise-grid reveal">
+            <span class="exercise-tag">Squat</span>
+            <span class="exercise-tag">Deadlift</span>
+            <span class="exercise-tag">Bench Press</span>
+            <span class="exercise-tag">Overhead Press</span>
+            <span class="exercise-tag">Romanian Deadlift</span>
+            <span class="exercise-tag">Hip Thrust</span>
+            <span class="exercise-tag">Barbell Row</span>
+            <span class="exercise-tag">Pull-up</span>
+            <span class="exercise-tag">Lateral Raise</span>
+            <span class="exercise-tag">Bicep Curl</span>
+            <span class="exercise-tag">Tricep Extension</span>
+            <span class="exercise-tag">Lunges</span>
+            <span class="exercise-tag">Bulgarian Split Squat</span>
+            <span class="exercise-tag">Leg Press</span>
+            <span class="exercise-tag">Front Squat</span>
+            <span class="exercise-tag">Pendlay Row</span>
+            <span class="exercise-tag">Face Pull</span>
+            <span class="exercise-tag">Cable Fly</span>
+            <span class="exercise-tag">Leg Curl</span>
+            <span class="exercise-tag">Leg Extension</span>
+            <span class="exercise-tag">Calf Raise</span>
+            <span class="exercise-tag">Dips</span>
+            <span class="exercise-tag">Good Morning</span>
+            <span class="exercise-tag">Hack Squat</span>
+        </div>
+        <div class="exercise-count reveal">
+            <span>82+</span> exercices disponibles — et on en ajoute régulièrement
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+    <div class="container">
+        <div class="section-header reveal">
+            <div class="section-label">Tarifs</div>
+            <h2 class="section-title">Investis dans ta progression</h2>
+            <p class="section-subtitle">Moins cher qu'une seule séance avec un coach. Plus précis qu'un œil humain.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card reveal">
+                <div class="pricing-name">Starter</div>
+                <div class="pricing-desc">Pour découvrir</div>
+                <div class="pricing-amount">29<span class="currency">,99€</span></div>
+                <div class="pricing-per">5 analyses • 6,00€ / analyse</div>
+                <ul class="pricing-features">
+                    <li>5 analyses vidéo complètes</li>
+                    <li>Score de forme /100</li>
+                    <li>Analyse rep par rep</li>
+                    <li>Corrections détaillées</li>
+                    <li>Rapport HTML</li>
+                </ul>
+                <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20le%20pack%20Starter%20🎯" class="btn btn-secondary btn-sm">Choisir Starter →</a>
+            </div>
+            <div class="pricing-card featured reveal">
+                <div class="pricing-name">Pro</div>
+                <div class="pricing-desc">Le plus populaire</div>
+                <div class="pricing-amount">59<span class="currency">,99€</span></div>
+                <div class="pricing-per">20 analyses • 3,00€ / analyse</div>
+                <ul class="pricing-features">
+                    <li>20 analyses vidéo complètes</li>
+                    <li>Score de forme /100</li>
+                    <li>Analyse rep par rep</li>
+                    <li>Corrections détaillées</li>
+                    <li>Rapport HTML</li>
+                    <li>Profil morphologique inclus</li>
+                    <li>Exercices correctifs personnalisés</li>
+                </ul>
+                <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20le%20pack%20Pro%20💪" class="btn btn-primary btn-sm">Choisir Pro →</a>
+            </div>
+            <div class="pricing-card reveal">
+                <div class="pricing-name">Illimité</div>
+                <div class="pricing-desc">Pour les sérieux</div>
+                <div class="pricing-amount">99<span class="currency">,99€</span><span class="period"> /an</span></div>
+                <div class="pricing-per">Analyses illimitées • Meilleure valeur</div>
+                <ul class="pricing-features">
+                    <li>Analyses illimitées pendant 1 an</li>
+                    <li>Score de forme /100</li>
+                    <li>Analyse rep par rep</li>
+                    <li>Corrections détaillées</li>
+                    <li>Rapport HTML</li>
+                    <li>Profil morphologique inclus</li>
+                    <li>Exercices correctifs personnalisés</li>
+                    <li>Accès prioritaire aux nouveautés</li>
+                </ul>
+                <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20le%20pack%20Illimité%20🔥" class="btn btn-secondary btn-sm">Choisir Illimité →</a>
+            </div>
+        </div>
+        <div class="free-banner reveal">
+            <h3>🎁 <span>1 analyse gratuite</span> pour essayer</h3>
+            <p>Teste FORMCHECK sans engagement. Envoie ta première vidéo maintenant.</p>
+            <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20essayer%20FORMCHECK%20gratuitement%20🎯" class="btn btn-primary">💬 Essayer Gratuitement sur WhatsApp</a>
+        </div>
+    </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section class="proof-section">
+    <div class="container">
+        <div class="section-header reveal">
+            <div class="section-label">Crédibilité</div>
+            <h2 class="section-title">Créé par un vrai expert</h2>
+        </div>
+        <div class="proof-grid reveal">
+            <div class="proof-card">
+                <div class="proof-num">85.9K</div>
+                <div class="proof-label">Abonnés YouTube</div>
+            </div>
+            <div class="proof-card">
+                <div class="proof-num">11</div>
+                <div class="proof-label">Certifications internationales</div>
+            </div>
+            <div class="proof-card">
+                <div class="proof-num">1000+</div>
+                <div class="proof-label">Élèves transformés</div>
+            </div>
+            <div class="proof-card">
+                <div class="proof-num">82+</div>
+                <div class="proof-label">Exercices analysables</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+    <div class="container">
+        <div class="about-content reveal">
+            <div class="about-visual">
+                <div class="about-avatar">AZ</div>
+            </div>
+            <div class="about-text">
+                <div class="section-label">Le créateur</div>
+                <h2>AchZod</h2>
+                <p>Coach fitness et transformation physique, AchZod combine des années d'expérience terrain avec les dernières avancées en intelligence artificielle pour démocratiser l'analyse biomécanique.</p>
+                <p>Avec 85.9K abonnés sur YouTube et des milliers d'élèves accompagnés, il a conçu FORMCHECK pour rendre accessible à tous ce qui était réservé aux athlètes de haut niveau.</p>
+                <div class="cert-list">
+                    <span class="cert-tag">NASM</span>
+                    <span class="cert-tag">ISSA</span>
+                    <span class="cert-tag">Precision Nutrition</span>
+                    <span class="cert-tag">Pre-Script</span>
+                    <span class="cert-tag">+7 autres</span>
+                </div>
+                <div class="social-links">
+                    <a href="https://youtube.com/@achzod" target="_blank" title="YouTube">▶</a>
+                    <a href="https://instagram.com/achzod" target="_blank" title="Instagram">📷</a>
+                    <a href="https://twitter.com/achzod" target="_blank" title="Twitter">𝕏</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background: var(--bg2);">
+    <div class="container">
+        <div class="section-header reveal">
+            <div class="section-label">FAQ</div>
+            <h2 class="section-title">Questions fréquentes</h2>
+        </div>
+        <div class="faq-list reveal">
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">Comment bien filmer mon exercice ?</button>
+                <div class="faq-a"><div class="faq-a-inner">Place ton téléphone de profil (vue latérale), à environ 2-3 mètres. Assure-toi que tout ton corps est visible du début à la fin du mouvement. Un bon éclairage aide l'IA à mieux analyser. Filme ta série complète — l'IA analyse chaque rep individuellement.</div></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">Combien de temps prend une analyse ?</button>
+                <div class="faq-a"><div class="faq-a-inner">En moyenne, l'analyse complète est prête en 2 à 5 minutes après l'envoi de ta vidéo. Le temps peut varier selon la longueur de la vidéo et le nombre de répétitions.</div></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">Quels exercices sont supportés ?</button>
+                <div class="faq-a"><div class="faq-a-inner">Plus de 82 exercices sont supportés : squat, deadlift, bench press, overhead press, RDL, hip thrust, barbell row, lunges, bulgarian split squat, curl, lateral raise, et bien d'autres. La liste s'enrichit régulièrement. Tu peux demander au bot la liste complète sur WhatsApp.</div></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">C'est quoi le profil morphologique ?</button>
+                <div class="faq-a"><div class="faq-a-inner">En envoyant 3 photos (face, profil, dos), l'IA crée un profil de tes proportions corporelles : longueur des fémurs, des tibias, du torse, largeur des épaules, etc. Les analyses sont ensuite calibrées à TA morphologie. Un squat parfait ne ressemble pas au même squat pour tout le monde !</div></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">Est-ce que ça remplace un coach ?</button>
+                <div class="faq-a"><div class="faq-a-inner">FORMCHECK est un outil complémentaire puissant. Il analyse ta forme avec une précision que l'œil humain ne peut pas toujours atteindre (angles exacts, détection de micro-compensations). C'est idéal si tu t'entraînes seul, en complément de coaching, ou pour valider ta technique entre les séances.</div></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">Mes analyses expirent-elles ?</button>
+                <div class="faq-a"><div class="faq-a-inner">Les packs Starter et Pro n'expirent jamais — tu utilises tes analyses quand tu veux. Le pack Illimité est valable 1 an à partir de la date d'achat.</div></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">Comment je paie ?</button>
+                <div class="faq-a"><div class="faq-a-inner">Contacte-nous sur WhatsApp et on te guide pour le paiement. Plusieurs méthodes acceptées (carte, PayPal, virement). L'activation est immédiate après paiement.</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section style="padding: 100px 0; text-align: center;">
+    <div class="container reveal">
+        <h2 class="section-title">Prêt à transformer ta technique ?</h2>
+        <p class="section-subtitle" style="margin: 0 auto 40px;">Ta première analyse est gratuite. Aucun engagement.</p>
+        <a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20essayer%20FORMCHECK%20🎯" class="btn btn-primary" style="font-size: 1.1rem; padding: 20px 40px;">💬 Commencer sur WhatsApp — C'est gratuit</a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="nav-logo" style="font-size: 1.4rem;">FORM<span>CHECK</span></div>
+                <p>Analyse biomécanique par IA sur WhatsApp. Créé par AchZod, coach fitness certifié.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <a href="#how">Comment ça marche</a>
+                <a href="#features">Fonctionnalités</a>
+                <a href="#pricing">Tarifs</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <div class="footer-col">
+                <h4>AchZod</h4>
+                <a href="https://youtube.com/@achzod" target="_blank">YouTube</a>
+                <a href="https://instagram.com/achzod" target="_blank">Instagram</a>
+                <a href="https://twitter.com/achzod" target="_blank">Twitter</a>
+                <a href="https://www.achzodcoaching.com" target="_blank">Coaching</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2025 FORMCHECK by ACHZOD. Tous droits réservés.
+        </div>
+    </div>
+</footer>
+
+<!-- FLOATING WHATSAPP BUTTON -->
+<a href="https://wa.me/15557636881?text=Salut%20!%20Je%20veux%20essayer%20FORMCHECK%20🎯" class="wa-float" target="_blank" title="Ouvrir WhatsApp">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+// FAQ toggle
+function toggleFaq(btn) {
+    const wasActive = btn.classList.contains('active');
+    document.querySelectorAll('.faq-q').forEach(q => {
+        q.classList.remove('active');
+        q.nextElementSibling.style.maxHeight = null;
+    });
+    if (!wasActive) {
+        btn.classList.add('active');
+        btn.nextElementSibling.style.maxHeight = btn.nextElementSibling.scrollHeight + 'px';
+    }
+}
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
